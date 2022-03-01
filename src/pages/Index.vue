@@ -1,15 +1,6 @@
 <template>
   <q-page class="flex flex-center">
-    <div class="q-pa-md" style="max-width: 350px">
-      <q-list bordered>
-        <q-item clickable v-ripple>
-          <q-item-section avatar>
-            <q-icon color="primary" name="nodeName"></q-icon>
-          </q-item-section>
-          <q-item-section> {{ hrmpChannels }} </q-item-section>
-        </q-item>
-      </q-list>
-    </div>
+    <v-network-graph :nodes="nodes" :edges="edges" />
   </q-page>
 </template>
 
@@ -20,26 +11,17 @@ import { ApiPromise, WsProvider } from "@polkadot/api";
 export default defineComponent({
   name: "PageIndex",
   async setup() {
-    const provider = new WsProvider("wss://kusama-rpc.polkadot.io");
+    const provider = new WsProvider("wss://kusama.api.onfinality.io/public-ws");
+    console.log("provider", provider);
     const api = await ApiPromise.create({ provider });
     const hrmpChannels = await Promise.all([
       api.query.hrmp.hrmpChannels.entries(),
     ]);
 
-    let nodes = [];
-    let edges = [];
+    let nodes = {};
+    let edges = {};
 
-    hrmpChannels[0].map((e) => {
-      const s = JSON.stringify(e);
-      const h = e[0].toHuman();
-      console.log("es", h[0]);
-      return e;
-    });
-
-    // const h = JSON.stringify(hrmpChannels);
-    const h = hrmpChannels.toHuman();
-    console.log("hs", h);
-    console.log("hrmp", hrmpChannels);
+    function t() {}
 
     // https://github.com/polkadot-js/apps/blob/master/packages/apps-config/src/endpoints/productionRelayKusama.ts
     const chain = [
@@ -427,8 +409,33 @@ export default defineComponent({
       },
     ];
 
+    hrmpChannels[0].map((e) => {
+      const h = e[0].toHuman();
+      const sender = parseInt(h[0].sender.replace(",", ""), 10);
+      const recipient = parseInt(h[0].recipient.replace(",", ""), 10);
+
+      const name = chain.find((c) => c.paraId === sender).info;
+
+      nodes[sender] = {
+        name: chain.find((c) => c.paraId === sender).info,
+      };
+
+      nodes[recipient] = {
+        name: chain.find((c) => c.paraId === recipient).info,
+      };
+
+      edges[sender + "" + recipient] = {
+        source: sender,
+        target: recipient,
+      };
+    });
+
+    console.log("nodes", nodes);
+    console.log("edges", edges);
+
     return {
-      hrmpChannels,
+      nodes,
+      edges,
     };
   },
 });
