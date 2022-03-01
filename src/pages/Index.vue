@@ -1,25 +1,32 @@
 <template>
   <q-page class="flex flex-center">
-    <v-network-graph :nodes="nodes" :edges="edges" />
+    <v-network-graph :nodes="nodes" :edges="edges" :configs="configs" />
   </q-page>
 </template>
 
 <script>
-import { defineComponent } from "vue";
+import { defineComponent, reactive } from "vue";
 import { ApiPromise, WsProvider } from "@polkadot/api";
+import { ForceLayout } from "v-network-graph/lib/force-layout";
+import * as vNG from "v-network-graph";
 
 export default defineComponent({
   name: "PageIndex",
-  async setup() {
+  data() {
+    return {
+      layouts: {},
+      configs: {},
+      nodes: {},
+      edges: {},
+    };
+  },
+  async mounted() {
     const provider = new WsProvider("wss://kusama.api.onfinality.io/public-ws");
     console.log("provider", provider);
     const api = await ApiPromise.create({ provider });
     const hrmpChannels = await Promise.all([
       api.query.hrmp.hrmpChannels.entries(),
     ]);
-
-    let nodes = {};
-    let edges = {};
 
     function t() {}
 
@@ -414,29 +421,103 @@ export default defineComponent({
       const sender = parseInt(h[0].sender.replace(",", ""), 10);
       const recipient = parseInt(h[0].recipient.replace(",", ""), 10);
 
-      const name = chain.find((c) => c.paraId === sender).info;
-
-      nodes[sender] = {
+      this.nodes["node" + sender] = {
+        id: "node" + sender,
         name: chain.find((c) => c.paraId === sender).info,
       };
 
-      nodes[recipient] = {
+      this.nodes["node" + recipient] = {
+        id: "node" + recipient,
         name: chain.find((c) => c.paraId === recipient).info,
       };
 
-      edges[sender + "" + recipient] = {
-        source: sender,
-        target: recipient,
+      this.edges["edge" + sender + "-" + recipient] = {
+        source: "node" + sender,
+        target: "node" + recipient,
       };
     });
 
-    console.log("nodes", nodes);
-    console.log("edges", edges);
+    this.configs = reactive(
+      vNG.defineConfigs({
+        view: {
+          layoutHandler: new ForceLayout({
+            positionFixedByDrag: false,
+            positionFixedByClickWithAltKey: true,
+          }),
+        },
+        node: {
+          normal: {
+            color: (n) => (n.id === "node2000" ? "#ff0000" : "#4466cc"),
+          },
+          label: {
+            visible: true,
+            fontSize: 20,
+          },
+        },
+        edge: {
+          selectable: true,
+          normal: {
+            width: 3,
+            color: "#4466cc",
+            dasharray: "0",
+            linecap: "butt",
+            animate: false,
+            animationSpeed: 50,
+          },
+          hover: {
+            width: 4,
+            color: "#3355bb",
+            dasharray: "0",
+            linecap: "butt",
+            animate: false,
+            animationSpeed: 50,
+          },
+          selected: {
+            width: 3,
+            color: "#dd8800",
+            dasharray: "6",
+            linecap: "round",
+            animate: false,
+            animationSpeed: 50,
+          },
+          gap: 5,
+          type: "straight",
+          margin: 2,
+          marker: {
+            source: {
+              type: "none",
+              width: 4,
+              height: 4,
+              margin: -1,
+              units: "strokeWidth",
+              color: null,
+            },
+            target: {
+              type: "arrow",
+              width: 4,
+              height: 4,
+              margin: -1,
+              units: "strokeWidth",
+              color: null,
+            },
+          },
+        },
+      })
+    );
 
-    return {
-      nodes,
-      edges,
+    this.layouts = {
+      nodes: {
+        node2000: {
+          x: 0,
+          y: 0,
+          fixed: true, // Unaffected by force
+        },
+      },
     };
+    console.log("nodes", this.nodes);
+    console.log("edges", this.edges);
+
+    await api.disconnect();
   },
 });
 </script>

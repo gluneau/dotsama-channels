@@ -15,21 +15,13 @@
 </template>
 
 <script>
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "MainLayout",
-
   components: {},
-
   setup() {
-    const leftDrawerOpen = ref(false);
-
-    return {
-      toggleLeftDrawer() {
-        leftDrawerOpen.value = !leftDrawerOpen.value;
-      },
-    };
+    return {};
   },
 });
 </script>
