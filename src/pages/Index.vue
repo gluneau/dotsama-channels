@@ -1,6 +1,11 @@
 <template>
   <q-page class="flex flex-center">
-    <v-network-graph :nodes="nodes" :edges="edges" :configs="configs" />
+    <v-network-graph
+      :nodes="nodes"
+      :edges="edges"
+      :configs="configs"
+      zoom-level="2"
+    />
   </q-page>
 </template>
 
