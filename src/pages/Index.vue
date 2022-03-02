@@ -5,7 +5,46 @@
       :edges="edges"
       :configs="configs"
       zoom-level="2"
-    />
+    >
+      <defs>
+        <clipPath id="faceCircle" clipPathUnits="objectBoundingBox">
+          <circle cx="0.5" cy="0.5" r="0.5" />
+        </clipPath>
+      </defs>
+
+      <!-- Replace the node component -->
+      <template #override-node="{ nodeId, scale, config, ...slotProps }">
+        <!-- circle for filling background -->
+        <circle
+          class="face-circle"
+          :r="config.radius * scale"
+          fill="#ffffff"
+          v-bind="slotProps"
+        />
+        <!--
+        The base position of the <image /> is top left. The node's
+        center should be (0,0), so slide it by specifying x and y.
+      -->
+        <image
+          class="face-picture"
+          :x="-config.radius * scale * 2"
+          :y="-config.radius * scale * 2"
+          :width="config.radius * scale * 4"
+          :height="config.radius * scale * 4"
+          :xlink:href="`https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/2/parathreads/${nodes[nodeId].number}/assets/logo.svg`"
+          clip-path="url(#faceCircle)"
+        />
+        <!-- circle for drawing stroke -->
+        <circle
+          class="face-circle"
+          :r="config.radius * scale * 2"
+          fill="none"
+          stroke="#808080"
+          :stroke-width="1 * scale * 2"
+          v-bind="slotProps"
+        />
+      </template>
+    </v-network-graph>
   </q-page>
 </template>
 
@@ -426,14 +465,24 @@ export default defineComponent({
       const sender = parseInt(h[0].sender.replace(",", ""), 10);
       const recipient = parseInt(h[0].recipient.replace(",", ""), 10);
 
+      const nameSender =
+        chain.find((c) => c.paraId === sender).info[0].toUpperCase() +
+        chain.find((c) => c.paraId === sender).info.substring(1);
+
       this.nodes["node" + sender] = {
         id: "node" + sender,
-        name: chain.find((c) => c.paraId === sender).info,
+        number: sender,
+        name: nameSender,
       };
+
+      const nameRecipient =
+        chain.find((c) => c.paraId === recipient).info[0].toUpperCase() +
+        chain.find((c) => c.paraId === recipient).info.substring(1);
 
       this.nodes["node" + recipient] = {
         id: "node" + recipient,
-        name: chain.find((c) => c.paraId === recipient).info,
+        number: recipient,
+        name: nameRecipient,
       };
 
       this.edges["edge" + sender + "-" + recipient] = {
@@ -456,7 +505,9 @@ export default defineComponent({
           },
           label: {
             visible: true,
-            fontSize: 20,
+            fontSize: 40,
+            margin: 20,
+            padding: 20,
           },
         },
         edge: {
@@ -487,21 +538,21 @@ export default defineComponent({
           },
           gap: 5,
           type: "straight",
-          margin: 2,
+          margin: 15,
           marker: {
             source: {
               type: "none",
-              width: 4,
-              height: 4,
-              margin: -1,
+              width: 5,
+              height: 5,
+              margin: 0,
               units: "strokeWidth",
               color: null,
             },
             target: {
               type: "arrow",
-              width: 4,
-              height: 4,
-              margin: -1,
+              width: 5,
+              height: 5,
+              margin: 0,
               units: "strokeWidth",
               color: null,
             },
@@ -526,3 +577,17 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="scss" scoped>
+// transitions when scaling on mouseover.
+.face-circle,
+.face-picture {
+  transition: all 0.1s linear;
+}
+
+// suppress image events so that mouse events are received
+// by the background circle.
+.face-picture {
+  pointer-events: none;
+}
+</style>
