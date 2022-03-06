@@ -39,7 +39,7 @@
           class="face-circle"
           :r="config.radius * scale * 2"
           fill="none"
-          stroke="#808080"
+          :stroke="nodes[nodeId].type === 'request' ? '#ff0000' : '#808080'"
           :stroke-width="1 * scale * 2"
           v-bind="slotProps"
         />
@@ -68,8 +68,9 @@ export default defineComponent({
     const provider = new WsProvider("wss://kusama.api.onfinality.io/public-ws");
     console.log("provider", provider);
     const api = await ApiPromise.create({ provider });
-    const hrmpChannels = await Promise.all([
+    const [hrmpChannels, requestsList] = await Promise.all([
       api.query.hrmp.hrmpChannels.entries(),
+      api.query.hrmp.hrmpOpenChannelRequestsList(),
     ]);
 
     function t() {}
@@ -460,7 +461,7 @@ export default defineComponent({
       },
     ];
 
-    hrmpChannels[0].map((e) => {
+    hrmpChannels.map((e) => {
       const h = e[0].toHuman();
       const sender = parseInt(h[0].sender.replace(",", ""), 10);
       const recipient = parseInt(h[0].recipient.replace(",", ""), 10);
@@ -491,6 +492,44 @@ export default defineComponent({
       };
     });
 
+    requestsList.map((e) => {
+      const h = e.toHuman();
+      const sender = parseInt(h.sender.replace(",", ""), 10);
+      const recipient = parseInt(h.recipient.replace(",", ""), 10);
+
+      const nameSender =
+        chain.find((c) => c.paraId === sender).info[0].toUpperCase() +
+        chain.find((c) => c.paraId === sender).info.substring(1);
+
+      if (this.nodes["node" + sender] === undefined) {
+        console.log('this.nodes["node" + sender]', this.nodes["node" + sender]);
+        this.nodes["node" + sender] = {
+          id: "node" + sender,
+          number: sender,
+          name: nameSender,
+          type: "request",
+        };
+      }
+
+      const nameRecipient =
+        chain.find((c) => c.paraId === recipient).info[0].toUpperCase() +
+        chain.find((c) => c.paraId === recipient).info.substring(1);
+
+      if (this.nodes["node" + recipient] === undefined) {
+        this.nodes["node" + recipient] = {
+          id: "node" + recipient,
+          number: recipient,
+          name: nameRecipient,
+          type: "request",
+        };
+      }
+      this.edges["edge" + sender + "-" + recipient] = {
+        source: "node" + sender,
+        target: "node" + recipient,
+        type: "request",
+      };
+    });
+
     this.configs = reactive(
       vNG.defineConfigs({
         view: {
@@ -500,9 +539,7 @@ export default defineComponent({
           }),
         },
         node: {
-          normal: {
-            color: (n) => (n.id === "node2000" ? "#ff0000" : "#4466cc"),
-          },
+          normal: {},
           label: {
             visible: true,
             fontSize: 40,
@@ -514,8 +551,8 @@ export default defineComponent({
           selectable: true,
           normal: {
             width: 3,
-            color: "#4466cc",
-            dasharray: "0",
+            color: (n) => (n.type === "request" ? "#ff0000" : "#4466cc"),
+            dasharray: (n) => (n.type === "request" ? "10" : "#0"),
             linecap: "butt",
             animate: false,
             animationSpeed: 50,
