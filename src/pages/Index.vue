@@ -1,51 +1,80 @@
 <template>
-  <q-page class="flex flex-center">
-    <v-network-graph
-      :nodes="nodes"
-      :edges="edges"
-      :configs="configs"
-      zoom-level="2"
-    >
-      <defs>
-        <clipPath id="faceCircle" clipPathUnits="objectBoundingBox">
-          <circle cx="0.5" cy="0.5" r="0.5" />
-        </clipPath>
-      </defs>
+  <q-layout view="hHh lpR fFf">
+    <q-header elevated>
+      <q-toolbar>
+        <q-btn
+          flat
+          dense
+          round
+          icon="menu"
+          aria-label="Menu"
+          @click="toggleLeftDrawer"
+        />
+        <q-toolbar-title> Dotsama Channels </q-toolbar-title>
+        <div>v{{ $q.version }}</div>
+      </q-toolbar>
+    </q-header>
 
-      <!-- Replace the node component -->
-      <template #override-node="{ nodeId, scale, config, ...slotProps }">
-        <!-- circle for filling background -->
-        <circle
-          class="face-circle"
-          :r="config.radius * scale"
-          fill="#ffffff"
-          v-bind="slotProps"
-        />
-        <!--
-        The base position of the <image /> is top left. The node's
-        center should be (0,0), so slide it by specifying x and y.
-      -->
-        <image
-          class="face-picture"
-          :x="-config.radius * scale * 2"
-          :y="-config.radius * scale * 2"
-          :width="config.radius * scale * 4"
-          :height="config.radius * scale * 4"
-          :xlink:href="`https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/2/parathreads/${nodes[nodeId].number}/assets/logo.svg`"
-          clip-path="url(#faceCircle)"
-        />
-        <!-- circle for drawing stroke -->
-        <circle
-          class="face-circle"
-          :r="config.radius * scale * 2"
-          fill="none"
-          :stroke="nodes[nodeId].type === 'request' ? '#ff0000' : '#808080'"
-          :stroke-width="1 * scale * 2"
-          v-bind="slotProps"
-        />
-      </template>
-    </v-network-graph>
-  </q-page>
+    <q-page-container>
+      <q-page class="flex flex-center">
+        <v-network-graph
+          :nodes="nodes"
+          :edges="edges"
+          :configs="configs"
+          zoom-level="2"
+        >
+          <defs>
+            <clipPath id="faceCircle" clipPathUnits="objectBoundingBox">
+              <circle cx="0.5" cy="0.5" r="0.5" />
+            </clipPath>
+          </defs>
+
+          <!-- Replace the node component -->
+          <template #override-node="{ nodeId, scale, config, ...slotProps }">
+            <!-- circle for filling background -->
+            <circle
+              class="face-circle"
+              :r="config.radius * scale"
+              fill="#ffffff"
+              v-bind="slotProps"
+            />
+            <!--
+            The base position of the <image /> is top left. The node's
+            center should be (0,0), so slide it by specifying x and y.
+          -->
+            <image
+              class="face-picture"
+              :x="-config.radius * scale * 2"
+              :y="-config.radius * scale * 2"
+              :width="config.radius * scale * 4"
+              :height="config.radius * scale * 4"
+              :xlink:href="`https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/2/parathreads/${nodes[nodeId].number}/assets/logo.svg`"
+              clip-path="url(#faceCircle)"
+            />
+            <!-- circle for drawing stroke -->
+            <circle
+              class="face-circle"
+              :r="config.radius * scale * 2"
+              fill="none"
+              :stroke="nodes[nodeId].type === 'request' ? '#ff0000' : '#808080'"
+              :stroke-width="1 * scale * 2"
+              v-bind="slotProps"
+            />
+          </template>
+        </v-network-graph>
+      </q-page>
+    </q-page-container>
+
+    <q-drawer
+      v-model="leftDrawerOpen"
+      overlay
+      side="left"
+      bordered
+      class="bg-content"
+    >
+      <q-list> </q-list>
+    </q-drawer>
+  </q-layout>
 </template>
 
 <script>
@@ -62,10 +91,12 @@ export default defineComponent({
       configs: {},
       nodes: {},
       edges: {},
+      leftDrawerOpen: false,
     };
   },
   async mounted() {
     const provider = new WsProvider("wss://kusama.api.onfinality.io/public-ws");
+    // const provider = new WsProvider("wss://rococo-rpc.polkadot.io/public-ws");
     console.log("provider", provider);
     const api = await ApiPromise.create({ provider });
     const [hrmpChannels, requestsList] = await Promise.all([
@@ -612,10 +643,25 @@ export default defineComponent({
 
     await api.disconnect();
   },
+  methods: {
+    toggleLeftDrawer() {
+      this.leftDrawerOpen = !this.leftDrawerOpen;
+    },
+  },
 });
 </script>
 
 <style lang="scss" scoped>
+.q-drawer__content {
+  .version_app {
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    left: 0px;
+    text-align: center;
+    font-size: 14px;
+  }
+}
 // transitions when scaling on mouseover.
 .face-circle,
 .face-picture {
