@@ -72,7 +72,16 @@
       bordered
       class="bg-content"
     >
-      <q-list> </q-list>
+      <q-list>
+        <q-item-label
+          v-for="edge in edges"
+          v-bind:key="edge.label"
+          header
+          class="text-grey-8"
+        >
+          {{ edges.label }}
+        </q-item-label>
+      </q-list>
     </q-drawer>
   </q-layout>
 </template>
