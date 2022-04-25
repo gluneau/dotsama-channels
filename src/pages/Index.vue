@@ -92,7 +92,10 @@
           clickable
           v-ripple
         >
-          <q-item-section header class="text-grey-8">
+          <q-item-section
+            header
+            :class="item.type === 'request' ? `text-red` : `text-grey-8`"
+          >
             {{ item.label }}
           </q-item-section>
         </q-item>
@@ -657,12 +660,14 @@ export default defineComponent({
 
       requestsList.map((e) => {
         const h = e.toHuman();
+        console.log("h-rl", h);
         const sender = parseInt(h.sender.replace(",", ""), 10);
         const recipient = parseInt(h.recipient.replace(",", ""), 10);
 
-        const nameSender =
-          chain.find((c) => c.paraId === sender).info[0].toUpperCase() +
-          chain.find((c) => c.paraId === sender).info.substring(1);
+        const nameSender = chain.find((c) => c.paraId === sender)
+          ? chain.find((c) => c.paraId === sender).info[0].toUpperCase() +
+            chain.find((c) => c.paraId === sender).info.substring(1)
+          : sender;
 
         if (this.nodes["node" + sender] === undefined) {
           console.log(
@@ -677,9 +682,10 @@ export default defineComponent({
           };
         }
 
-        const nameRecipient =
-          chain.find((c) => c.paraId === recipient).info[0].toUpperCase() +
-          chain.find((c) => c.paraId === recipient).info.substring(1);
+        const nameRecipient = chain.find((c) => c.paraId === recipient)
+          ? chain.find((c) => c.paraId === recipient).info[0].toUpperCase() +
+            chain.find((c) => c.paraId === recipient).info.substring(1)
+          : recipient;
 
         if (this.nodes["node" + recipient] === undefined) {
           this.nodes["node" + recipient] = {
@@ -726,7 +732,7 @@ export default defineComponent({
             },
             hover: {
               width: 4,
-              color: "#3355bb",
+              color: (n) => (n.type === "request" ? "#ff0000" : "#3355bb"),
               dasharray: "0",
               linecap: "butt",
               animate: false,
