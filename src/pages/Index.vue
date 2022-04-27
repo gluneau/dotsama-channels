@@ -626,8 +626,27 @@ export default defineComponent({
       hrmpChannels.map((e) => {
         const h = e[0].toHuman();
         console.log("h", h);
-        const sender = parseInt(h[0].sender.replace(",", ""), 10);
-        const recipient = parseInt(h[0].recipient.replace(",", ""), 10);
+        let sender = parseInt(h[0].sender.replace(",", ""), 10);
+        let recipient = parseInt(h[0].recipient.replace(",", ""), 10);
+
+        // Rococo exceptions
+        switch (sender) {
+          case 3002:
+            sender = 2015;
+            break;
+          case 3015:
+            sender = 2100;
+            break;
+        }
+
+        switch (recipient) {
+          case 3002:
+            recipient = 2015;
+            break;
+          case 3015:
+            recipient = 2100;
+            break;
+        }
 
         const nameSender = chain.find((c) => c.paraId === sender)
           ? chain.find((c) => c.paraId === sender).info[0].toUpperCase() +
