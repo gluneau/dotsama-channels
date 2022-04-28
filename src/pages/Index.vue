@@ -132,12 +132,16 @@ export default defineComponent({
           value: "wss://kusama.api.onfinality.io/public-ws",
         },
         {
+          label: "Rococo",
+          value: "wss://rococo-rpc.polkadot.io/public-ws",
+        },
+        {
           label: "Polkadot",
           value: "wss://rpc.polkadot.io/public-ws",
         },
         {
-          label: "Rococo",
-          value: "wss://rococo-rpc.polkadot.io/public-ws",
+          label: "Westend",
+          value: "wss://westend-rpc.polkadot.io/public-ws",
         },
       ],
     };
