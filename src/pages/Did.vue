@@ -33,7 +33,24 @@
           :rows="rows"
           :columns="columns"
           :loading="loading"
-        />
+        >
+          <template v-slot:body-cell-didAddress="cell">
+            <q-td :props="cell">
+              <a
+                :href="'https://dev.uniresolver.io/#did:kilt:' + cell.value"
+                target="_blank"
+                >{{ cell.value }}</a
+              >
+            </q-td>
+          </template>
+          <template v-slot:body-cell-w3n="cell">
+            <q-td :props="cell">
+              <a :href="'https://w3n.id/' + cell.value" target="_blank">{{
+                cell.value
+              }}</a>
+            </q-td>
+          </template>
+        </q-table>
       </q-page>
     </q-page-container>
   </q-layout>
