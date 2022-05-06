@@ -14,16 +14,16 @@
   },
   "dependencies": {
     "@polkadot/api": "^7.9.1",
-    "@quasar/extras": "^1.0.0",
+    "@quasar/extras": "^1.13.6",
     "core-js": "^3.6.5",
-    "quasar": "^2.0.0",
+    "quasar": "^2.6.6",
     "v-network-graph": "^0.5.0",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.13.14",
-    "@quasar/app": "^3.0.0",
+    "@quasar/app-webpack": "^3.5.1",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "^7.0.0",
