@@ -178,6 +178,9 @@ export default defineComponent({
             : "Candidate",
         });
       });
+
+      await api.disconnect();
+      await kiltApi.disconnect();
     },
   },
 });

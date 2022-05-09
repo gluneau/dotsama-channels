@@ -80,13 +80,13 @@
               v-bind="slotProps"
             />
           </template>
-          <!-- Additional layer -->
-          <template #badge="{ scale }">
-            <!--
+          <!-- Additional layer --
+          <template #badge="{ scale }" -->
+          <!--
         If the `view.scalingObjects` config is `false`(default),
         scaling does not change the display size of the nodes/edges.
         The `scale` is passed as a scaling factor to implement
-        this behavior. -->
+        this behavior. --
             <circle
               v-for="(pos, node) in layouts.nodes"
               :key="node"
@@ -96,8 +96,36 @@
               :fill="nodes[node].active ? '#00cc00' : '#ff5555'"
               style="pointer-events: none"
             />
-          </template>
+          </template -->
         </v-network-graph>
+        <q-dialog v-model="dialog">
+          <q-card>
+            <q-toolbar>
+              <q-avatar>
+                <img
+                  :src="`https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/${
+                    chain.label === 'Polkadot' || chain.label === 'Westend'
+                      ? 0
+                      : 2
+                  }/parathreads/${paraId}/assets/logo.svg`"
+                />
+              </q-avatar>
+
+              <q-toolbar-title
+                ><span class="text-weight-bold">{{ chain.label }}</span>
+              </q-toolbar-title>
+
+              <q-btn flat round dense icon="close" v-close-popup />
+            </q-toolbar>
+
+            <q-card-section>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum
+              repellendus sit voluptate voluptas eveniet porro. Rerum blanditiis
+              perferendis totam, ea at omnis vel numquam exercitationem aut,
+              natus minima, porro labore.
+            </q-card-section>
+          </q-card>
+        </q-dialog>
       </q-page>
     </q-page-container>
 
@@ -114,6 +142,7 @@
           v-bind:key="item.label"
           clickable
           v-ripple
+          @click="dialog = true"
         >
           <q-item-section
             header
@@ -147,7 +176,9 @@ export default defineComponent({
       eventHandlers: {},
       endpoints: [],
       version: {},
-      items: [],
+      items: {},
+      paraId: 2000,
+      dialog: false,
       leftDrawerOpen: false,
       chain: {
         label: "Kusama",
@@ -209,6 +240,7 @@ export default defineComponent({
     async load() {
       this.nodes = {};
       this.edges = {};
+      this.items = {};
 
       const provider = new WsProvider(this.chain.value);
       console.log("provider", provider);
@@ -225,25 +257,6 @@ export default defineComponent({
         console.log("h", h);
         let sender = parseInt(h[0].sender.replace(",", ""), 10);
         let recipient = parseInt(h[0].recipient.replace(",", ""), 10);
-
-        // Rococo exceptions
-        switch (sender) {
-          case 3002:
-            sender = 2015;
-            break;
-          case 3015:
-            sender = 2100;
-            break;
-        }
-
-        switch (recipient) {
-          case 3002:
-            recipient = 2015;
-            break;
-          case 3015:
-            recipient = 2100;
-            break;
-        }
 
         const nameSender = this.endpoints.find((c) => c.paraId === sender)
           ? this.endpoints
@@ -427,6 +440,30 @@ export default defineComponent({
       console.log("items", this.items);
       console.log("nodes", this.nodes);
       console.log("edges", this.edges);
+
+      // const assets = await this.getCurrencies(2000);
+
+      await api.disconnect();
+    },
+    async getCurrencies(chain) {
+      this.paraId = chain;
+
+      const wss = Object.values(
+        this.endpoints.find((c) => c.paraId === chain).providers
+      )[0];
+      const provider = new WsProvider(wss);
+      const api = await ApiPromise.create({ provider });
+
+      const [assetMetadatas, foreignAssetLocations] = await Promise.all([
+        api.query.assetRegistry.assetMetadatas.entries(),
+        api.query.assetRegistry.foreignAssetLocations(null),
+      ]);
+
+      assetMetadatas.map((a) => {
+        const h = a[1].toHuman();
+        console.log("a", h);
+        // this.assets[chain] ...
+      });
 
       await api.disconnect();
     },
