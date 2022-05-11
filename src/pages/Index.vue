@@ -107,22 +107,87 @@
                     chain.label === 'Polkadot' || chain.label === 'Westend'
                       ? 0
                       : 2
-                  }/parathreads/${paraId}/assets/logo.svg`"
+                  }/parathreads/${para.paraId}/assets/logo.svg`"
                 />
               </q-avatar>
 
               <q-toolbar-title
-                ><span class="text-weight-bold">{{ chain.label }}</span>
+                ><span class="text-weight-bold text-capitalize">{{
+                  para.info
+                }}</span>
+                Registered Assets
               </q-toolbar-title>
 
               <q-btn flat round dense icon="close" v-close-popup />
             </q-toolbar>
 
             <q-card-section>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum
-              repellendus sit voluptate voluptas eveniet porro. Rerum blanditiis
-              perferendis totam, ea at omnis vel numquam exercitationem aut,
-              natus minima, porro labore.
+              <q-list
+                v-if="
+                  assets.find(
+                    (c) => c.paraId === para.paraId && c.chain === chain.label
+                  ).asset.length === 0
+                "
+                bordered
+              >
+                <q-item>
+                  <q-item-section avatar>
+                    <q-avatar>
+                      <q-skeleton type="QAvatar" />
+                    </q-avatar>
+                  </q-item-section>
+                  <q-item-section><q-skeleton type="text" /></q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section avatar>
+                    <q-avatar>
+                      <q-skeleton type="QAvatar" />
+                    </q-avatar>
+                  </q-item-section>
+                  <q-item-section><q-skeleton type="text" /></q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section avatar>
+                    <q-avatar>
+                      <q-skeleton type="QAvatar" />
+                    </q-avatar>
+                  </q-item-section>
+                  <q-item-section><q-skeleton type="text" /></q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section avatar>
+                    <q-avatar>
+                      <q-skeleton type="QAvatar" />
+                    </q-avatar>
+                  </q-item-section>
+                  <q-item-section><q-skeleton type="text" /></q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section avatar>
+                    <q-avatar>
+                      <q-skeleton type="QAvatar" />
+                    </q-avatar>
+                  </q-item-section>
+                  <q-item-section><q-skeleton type="text" /></q-item-section>
+                </q-item>
+              </q-list>
+              <q-list v-else bordered>
+                <q-item
+                  v-for="asset in assets.find(
+                    (c) => c.paraId === para.paraId && c.chain === chain.label
+                  ).asset"
+                  v-bind:key="asset.symbol"
+                  clickable
+                  v-ripple
+                >
+                  <q-item-section avatar>
+                    <q-avatar>
+                      <img :src="asset.image" />
+                    </q-avatar>
+                  </q-item-section>
+                  <q-item-section>{{ asset.name }}</q-item-section>
+                </q-item>
+              </q-list>
             </q-card-section>
           </q-card>
         </q-dialog>
@@ -136,19 +201,40 @@
       bordered
       class="bg-content"
     >
+      <div class="row text-h5 justify-center">HRMP Channel List</div>
       <q-list dense bordered>
-        <q-item
-          v-for="item in items"
-          v-bind:key="item.label"
-          clickable
-          v-ripple
-          @click="dialog = true"
-        >
+        <q-item v-for="item in items" v-bind:key="item.label">
           <q-item-section
             header
             :class="item.type === 'request' ? `text-red` : `text-grey-8`"
           >
-            {{ item.label }}
+            <div class="row items-center">
+              <div class="col column reverse">
+                <q-btn
+                  :color="item.type === 'request' ? `negative` : `primary`"
+                  :label="item.nameSender"
+                  size="sm"
+                  push
+                  @click="getCurrencies(chain.label, item.sender)"
+                />
+              </div>
+              <div class="col">
+                <q-linear-progress
+                  class=""
+                  indeterminate
+                  :color="item.type === 'request' ? `negative` : `primary`"
+                />
+              </div>
+              <div class="col column reverse">
+                <q-btn
+                  :color="item.type === 'request' ? `negative` : `primary`"
+                  :label="item.nameRecipient"
+                  size="sm"
+                  push
+                  @click="getCurrencies(chain.label, item.recipient)"
+                />
+              </div>
+            </div>
           </q-item-section>
         </q-item>
       </q-list>
@@ -177,7 +263,17 @@ export default defineComponent({
       endpoints: [],
       version: {},
       items: {},
-      paraId: 2000,
+      para: {
+        info: "Karura",
+        paraId: 2000,
+      },
+      assets: [
+        {
+          chain: "Kusama",
+          paraId: 2000,
+          asset: [],
+        },
+      ],
       dialog: false,
       leftDrawerOpen: false,
       chain: {
@@ -284,9 +380,37 @@ export default defineComponent({
           name: nameRecipient,
         };
 
+        if (
+          !this.assets.find(
+            (c) => c.paraId === sender && c.chain === this.chain.label
+          )
+        ) {
+          this.assets.push({
+            chain: this.chain.label,
+            paraId: sender,
+            asset: [],
+          });
+        }
+
+        if (
+          !this.assets.find(
+            (c) => c.paraId === recipient && c.chain === this.chain.label
+          )
+        ) {
+          this.assets.push({
+            chain: this.chain.label,
+            paraId: recipient,
+            asset: [],
+          });
+        }
+
         this.edges["edge" + sender + "-" + recipient] = {
           source: "node" + sender,
           target: "node" + recipient,
+          sender,
+          recipient,
+          nameSender: nameSender,
+          nameRecipient: nameRecipient,
           label: nameSender + " ➔ " + nameRecipient,
         };
       });
@@ -332,10 +456,39 @@ export default defineComponent({
             type: "request",
           };
         }
+
+        if (
+          !this.assets.find(
+            (c) => c.paraId === sender && c.chain === this.chain.label
+          )
+        ) {
+          this.assets.push({
+            chain: this.chain.label,
+            paraId: sender,
+            asset: [],
+          });
+        }
+
+        if (
+          !this.assets.find(
+            (c) => c.paraId === recipient && c.chain === this.chain.label
+          )
+        ) {
+          this.assets.push({
+            chain: this.chain.label,
+            paraId: recipient,
+            asset: [],
+          });
+        }
+
         this.edges["edge" + sender + "-" + recipient] = {
           source: "node" + sender,
           target: "node" + recipient,
           label: nameSender + " ➔ " + nameRecipient,
+          sender,
+          recipient,
+          nameSender: nameSender,
+          nameRecipient: nameRecipient,
           type: "request",
         };
       });
@@ -445,27 +598,105 @@ export default defineComponent({
 
       await api.disconnect();
     },
-    async getCurrencies(chain) {
-      this.paraId = chain;
+    async getCurrencies(chain, paraId) {
+      this.dialog = true;
+      this.para = this.endpoints.find((c) => c.paraId === paraId);
 
-      const wss = Object.values(
-        this.endpoints.find((c) => c.paraId === chain).providers
-      )[0];
-      const provider = new WsProvider(wss);
-      const api = await ApiPromise.create({ provider });
+      if (
+        !this.assets.find((c) => c.paraId === paraId && c.chain === chain) ||
+        !this.assets.find((c) => c.paraId === paraId && c.chain === chain).asset
+          .length
+      ) {
+        const wss = Object.values(this.para.providers)[0];
+        const provider = new WsProvider(wss);
+        const api = await ApiPromise.create({ provider });
 
-      const [assetMetadatas, foreignAssetLocations] = await Promise.all([
-        api.query.assetRegistry.assetMetadatas.entries(),
-        api.query.assetRegistry.foreignAssetLocations(null),
-      ]);
+        // const [assetMetadatas, foreignAssetLocations] = await Promise.all([
+        //   api.query.assetRegistry.assetMetadatas.entries(),
+        //   api.query.assetRegistry.foreignAssetLocations(null),
+        // ]);
 
-      assetMetadatas.map((a) => {
-        const h = a[1].toHuman();
-        console.log("a", h);
-        // this.assets[chain] ...
-      });
+        let assetMetadata = [];
+        if (paraId === 2000 || paraId === 2001) {
+          // Acala, Karura, Bifrost
+          assetMetadata =
+            await api.query.assetRegistry.assetMetadatas.entries();
+        } else if (paraId === 2090) {
+          // Basilisk
+          assetMetadata = await api.query.assetRegistry.assets.entries();
+        } else if (paraId === 2107) {
+          // Kico, Dico
+          assetMetadata = await api.query.currencies.dicoAssetsInfo.entries();
+        } else if (
+          paraId === 2084 ||
+          paraId === 2004 ||
+          paraId === 2023 ||
+          paraId === 1000 ||
+          paraId === 2085
+        ) {
+          // calimari khala moonriver statemine heiko
+          assetMetadata = await api.query.assets.metadata.entries();
+        } else {
+          //
+          assetMetadata = await api.query.assets.metadata.entries();
+        }
+        // fails
+        // ?genshiro kintsugi quartz shadow
+        //
 
-      await api.disconnect();
+        let asset = [];
+        assetMetadata.map((a) => {
+          const h = a[1].toHuman();
+
+          // console.log("h", h);
+
+          // ZLK https://raw.githubusercontent.com/zenlinkpro/assets/master/blockchains/moonriver/assets/0x0f47ba9d9Bde3442b42175e51d6A367928A1173B/logo.png
+
+          if (paraId === 2107) {
+            asset.push({
+              name: h.metadata.name,
+              symbol: h.metadata.symbol,
+              image:
+                "https://resources.acala.network/tokens/" +
+                h.metadata.symbol + // .toUpperCase() +
+                ".png",
+            });
+          } else if (paraId === 2090) {
+            asset.push({
+              name: h.name,
+              symbol: h.name,
+              image:
+                "https://resources.acala.network/tokens/" +
+                h.name + // .toUpperCase() +
+                ".png",
+            });
+          } else {
+            asset.push({
+              name: h.name,
+              symbol: h.symbol,
+              image:
+                "https://resources.acala.network/tokens/" +
+                h.symbol + // .toUpperCase() +
+                ".png",
+            });
+          }
+        });
+
+        if (this.assets.find((c) => c.paraId === paraId && c.chain === chain)) {
+          this.assets.find(
+            (c) => c.paraId === paraId && c.chain === chain
+          ).asset = asset;
+        } else {
+          this.assets.push({
+            chain,
+            paraId,
+            asset,
+          });
+        }
+
+        console.log("this.assets", this.assets);
+        await api.disconnect();
+      }
     },
     getEndpoints(chain) {
       function t() {}
@@ -955,6 +1186,15 @@ export default defineComponent({
               },
             },
           ];
+          this.endpoints.push({
+            info: "efinity",
+            homepage: "https://efinity.io",
+            paraId: 2021,
+            text: "Efinity",
+            providers: {
+              Efinity: "wss://rpc.efinity.io",
+            },
+          });
           break;
         case "Polkadot":
         case "Westend":
