@@ -185,7 +185,19 @@
                       <img :src="asset.image" />
                     </q-avatar>
                   </q-item-section>
-                  <q-item-section>{{ asset.name }}</q-item-section>
+                  <q-item-section>
+                    <q-item-label>{{ asset.name }}</q-item-label>
+                    <q-item-label caption lines="1">{{
+                      asset.symbol
+                    }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn dense round icon="mdi-decimal" class="q-ml-md">
+                      <q-badge color="red" floating>{{
+                        asset.decimals
+                      }}</q-badge>
+                    </q-btn>
+                  </q-item-section>
                 </q-item>
               </q-list>
             </q-card-section>
@@ -387,6 +399,7 @@ export default defineComponent({
         ) {
           this.assets.push({
             chain: this.chain.label,
+            para: nameSender,
             paraId: sender,
             asset: [],
           });
@@ -464,6 +477,7 @@ export default defineComponent({
         ) {
           this.assets.push({
             chain: this.chain.label,
+            para: nameSender,
             paraId: sender,
             asset: [],
           });
@@ -648,7 +662,7 @@ export default defineComponent({
         assetMetadata.map((a) => {
           const h = a[1].toHuman();
 
-          // console.log("h", h);
+          console.log("h", h);
 
           // ZLK https://raw.githubusercontent.com/zenlinkpro/assets/master/blockchains/moonriver/assets/0x0f47ba9d9Bde3442b42175e51d6A367928A1173B/logo.png
 
@@ -656,6 +670,7 @@ export default defineComponent({
             asset.push({
               name: h.metadata.name,
               symbol: h.metadata.symbol,
+              decimals: h.metadata.decimals,
               image:
                 "https://resources.acala.network/tokens/" +
                 h.metadata.symbol + // .toUpperCase() +
@@ -665,6 +680,7 @@ export default defineComponent({
             asset.push({
               name: h.name,
               symbol: h.name,
+              decimals: h.decimals,
               image:
                 "https://resources.acala.network/tokens/" +
                 h.name + // .toUpperCase() +
@@ -674,6 +690,7 @@ export default defineComponent({
             asset.push({
               name: h.name,
               symbol: h.symbol,
+              decimals: h.decimals,
               image:
                 "https://resources.acala.network/tokens/" +
                 h.symbol + // .toUpperCase() +
