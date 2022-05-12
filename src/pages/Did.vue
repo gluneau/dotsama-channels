@@ -104,16 +104,16 @@ export default defineComponent({
       leftDrawerOpen: false,
       chain: {
         label: "Karura",
-        value: "wss://karura-rpc-0.aca-api.network/public-ws",
+        value: "wss://karura.api.onfinality.io/public-ws",
       },
       chainOptions: [
         {
           label: "Karura",
-          value: "wss://karura-rpc-0.aca-api.network/public-ws",
+          value: "wss:/karura.api.onfinality.io/public-ws",
         },
         {
           label: "Acala",
-          value: "wss://acala-rpc-0.aca-api.network/public-ws",
+          value: "wss://acala-polkadot.api.onfinality.io/public-ws",
         },
         {
           label: "Mandala",
