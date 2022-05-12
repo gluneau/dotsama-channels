@@ -135,11 +135,35 @@ export default defineComponent({
     this.version = version;
     await this.load();
     this.loading = false;
-    console.log("candidates", this.data);
+    console.log("this.rows", this.rows);
   },
   methods: {
     toggleLeftDrawer() {
       this.leftDrawerOpen = !this.leftDrawerOpen;
+    },
+    async queryInfo(api, candidate) {
+      console.log(await api.query.system.number());
+      // https://gist.github.com/weichweich/53f21076b7d8c4a6a9374e6bd8ee29ee
+      const maybeLinkRecord = await api.query.didLookup.connectedDids(
+        candidate
+      );
+
+      console.log("Finished query!");
+      console.log("maybeLinkRecord", maybeLinkRecord);
+      if (maybeLinkRecord.isNone) {
+        console.log("No record for this address");
+        return;
+      }
+
+      const didAddress = maybeLinkRecord.unwrap().did.toString();
+      const encodedW3N = await api.query.web3Names.names(didAddress);
+      const w3n = encodedW3N.isSome ? encodedW3N.unwrap().toUtf8() : null;
+
+      console.log(`Address ${candidate}`);
+      console.log(`  -> did:kilt:${didAddress}`);
+      console.log(`    -> w3n:${w3n}`);
+
+      return didAddress, w3n;
     },
     async load() {
       const provider = new WsProvider(this.chain.value);
@@ -147,6 +171,7 @@ export default defineComponent({
       const kiltApi = await ApiPromise.create({
         provider: new WsProvider("wss://spiritnet.api.onfinality.io/public-ws"),
       });
+      await kiltApi.isReady;
       const [candidates, invulnerables] = await Promise.all([
         api.query.collatorSelection.candidates(),
         api.query.collatorSelection.invulnerables(),
@@ -155,17 +180,12 @@ export default defineComponent({
       candidates.push(...invulnerables);
       console.log("invulnerables", invulnerables[0].toHuman()); // .types.entries());
 
+      console.log(candidates.map((c) => c.toHuman()));
       await candidates.map(async (e) => {
         const candidate = e.toHuman();
+        console.log("candidate", candidate);
 
-        const maybeLinkRecord = await kiltApi.query.didLookup.connectedDids(
-          candidate
-        );
-        const didAddress = maybeLinkRecord.isSome
-          ? maybeLinkRecord.unwrap().did.toString()
-          : "";
-        const encodedW3N = await kiltApi.query.web3Names.names(didAddress);
-        const w3n = encodedW3N.isSome ? encodedW3N.unwrap().toUtf8() : "";
+        let [didAddress, w3n] = await this.queryInfo(kiltApi, candidate);
 
         console.log(`Address ${candidate} -> Did ${didAddress} -> W3N ${w3n}`);
 
