@@ -262,6 +262,14 @@ import { version } from "../../package.json";
 import * as vNG from "v-network-graph";
 import { Loading, QSpinnerGears } from "quasar";
 
+const eventHandlers = {
+  "node:click": ({ node }) => {
+    // toggle
+    // nodes[node].active = !nodes[node].active
+    console.log(node);
+  },
+};
+
 export default defineComponent({
   name: "PageIndex",
   data() {
@@ -271,7 +279,7 @@ export default defineComponent({
       nodes: {},
       edges: {},
       layers: {},
-      eventHandlers: {},
+      eventHandlers,
       endpoints: [],
       version: {},
       items: {},
