@@ -264,8 +264,8 @@ import { Loading, QSpinnerGears } from "quasar";
 
 const eventHandlers = {
   "node:click": ({ node }) => {
-    // toggle
-    // nodes[node].active = !nodes[node].active
+    const paraId = node.replace("node", "");
+    this.getCurrencies(this.chain.label, paraId);
     console.log(node);
   },
 };
@@ -656,7 +656,7 @@ export default defineComponent({
           paraId === 1000 ||
           paraId === 2085
         ) {
-          // calimari khala moonriver statemine heiko
+          // calimari khala moonriver moonbeam statemine heiko
           assetMetadata = await api.query.assets.metadata.entries();
         } else {
           //
@@ -692,6 +692,16 @@ export default defineComponent({
               image:
                 "https://resources.acala.network/tokens/" +
                 h.name + // .toUpperCase() +
+                ".png",
+            });
+          } else if (paraId === 2023) {
+            asset.push({
+              name: h.name,
+              symbol: h.symbol,
+              decimals: h.decimals,
+              image:
+                "https://resources.acala.network/tokens/" +
+                h.symbol.replace("xc", "") + // .toUpperCase() +
                 ".png",
             });
           } else {
@@ -735,49 +745,29 @@ export default defineComponent({
             // ...
             // (2) all common good parachains
             {
-              info: "statemine",
-              paraId: 1000,
-              text: t("rpc.kusama.statemine", "Statemine", {
-                ns: "apps-config",
-              }),
-              providers: {
-                Parity: "wss://statemine-rpc.polkadot.io",
-                OnFinality: "wss://statemine.api.onfinality.io/public-ws",
-                Dwellir: "wss://statemine-rpc.dwellir.com",
-              },
-              teleport: [-1],
-            },
-            {
-              info: "encointer",
-              homepage: "https://encointer.org/",
-              paraId: 1001,
-              text: t("rpc.kusama.encointer", "Encointer Network", {
-                ns: "apps-config",
-              }),
-              providers: {
-                "Encointer Association": "wss://kusama.api.encointer.org",
-                OnFinality: "wss://encointer.api.onfinality.io/public-ws",
-              },
-              teleport: [-1],
-            },
-            /// (3) parachains with id, see Rococo (info here maps to the actual "named icon")
-            //
-            // NOTE: Added alphabetical based on chain name
-            {
               info: "altair",
               homepage: "https://centrifuge.io/altair",
               paraId: 2088,
-              text: t("rpc.kusama.altair", "Altair", { ns: "apps-config" }),
+              text: "Altair",
               providers: {
                 Centrifuge: "wss://fullnode.altair.centrifuge.io",
                 OnFinality: "wss://altair.api.onfinality.io/public-ws",
               },
             },
             {
+              info: "bajun",
+              homepage: "https://ajuna.io",
+              paraId: 2119,
+              text: "Bajun Network",
+              providers: {
+                AjunaNetwork: "wss://rpc-parachain.bajun.network",
+              },
+            },
+            {
               info: "basilisk",
               homepage: "https://bsx.fi",
               paraId: 2090,
-              text: t("rpc.kusama.basilisk", "Basilisk", { ns: "apps-config" }),
+              text: "Basilisk",
               providers: {
                 HydraDX: "wss://rpc-01.basilisk.hydradx.io",
                 OnFinality: "wss://basilisk.api.onfinality.io/public-ws",
@@ -788,9 +778,7 @@ export default defineComponent({
               info: "bifrost",
               homepage: "https://ksm.vtoken.io/?ref=polkadotjs",
               paraId: 2001,
-              text: t("rpc.kusama.bifrost", "Bifrost (Kusama)", {
-                ns: "apps-config",
-              }),
+              text: "Bifrost (Kusama)",
               providers: {
                 "Liebi 0": "wss://bifrost-rpc.liebi.com/ws",
                 "Liebi 1": "wss://us.bifrost-rpc.liebi.com/ws",
@@ -804,9 +792,7 @@ export default defineComponent({
               info: "bitcountryPioneer",
               homepage: "https://bit.country/?ref=polkadotjs",
               paraId: 2096,
-              text: t("rpc.kusama.pioneerNetwork", "Bit.Country Pioneer", {
-                ns: "apps-config",
-              }),
+              text: "Bit.Country Pioneer",
               providers: {
                 "Bit.Country": "wss://pioneer-1-rpc.bit.country",
                 OnFinality: "wss://pioneer.api.onfinality.io/public-ws",
@@ -816,9 +802,7 @@ export default defineComponent({
               info: "calamari",
               homepage: "https://www.calamari.network/",
               paraId: 2084,
-              text: t("rpc.calamari.systems", "Calamari", {
-                ns: "apps-config",
-              }),
+              text: "Calamari",
               providers: {
                 "Manta Network": "wss://ws.calamari.systems/",
                 OnFinality: "wss://calamari.api.onfinality.io/public-ws",
@@ -829,9 +813,7 @@ export default defineComponent({
               info: "shadow",
               homepage: "https://crust.network/",
               paraId: 2012,
-              text: t("rpc.kusama.shadow", "Crust Shadow", {
-                ns: "apps-config",
-              }),
+              text: "Crust Shadow",
               providers: {
                 Crust: "wss://rpc-shadow.crust.network/",
               },
@@ -840,9 +822,7 @@ export default defineComponent({
               info: "crab",
               homepage: "https://crab.network",
               paraId: 2105,
-              text: t("rpc.kusama.crab", "Darwinia Crab Parachain", {
-                ns: "apps-config",
-              }),
+              text: "Darwinia Crab Parachain",
               providers: {
                 Crab: "wss://crab-parachain-rpc.darwinia.network/",
               },
@@ -852,9 +832,7 @@ export default defineComponent({
               isUnreachable: true,
               homepage: "https://dorafactory.org/kusama/",
               paraId: 2115,
-              text: t("rpc.dorafactory.org", "Dora Factory", {
-                ns: "apps-config",
-              }),
+              text: "Dora Factory",
               providers: {
                 DORA: "wss://rpc.dorafactory.org",
               },
@@ -864,7 +842,7 @@ export default defineComponent({
               homepage: "https://genshiro.equilibrium.io",
               isUnreachable: true, // https://github.com/polkadot-js/apps/pull/6761
               paraId: 2024,
-              text: t("rpc.kusama.genshiro", "Genshiro", { ns: "apps-config" }),
+              text: "Genshiro",
               providers: {
                 Equilibrium: "wss://node.genshiro.io",
               },
@@ -873,18 +851,18 @@ export default defineComponent({
               info: "integritee",
               homepage: "https://integritee.network",
               paraId: 2015,
-              text: t("rpc.kusama.integritee", "Integritee Network", {
-                ns: "apps-config",
-              }),
+              text: "Integritee Network",
               providers: {
                 Integritee: "wss://kusama.api.integritee.network",
+                OnFinality:
+                  "wss://integritee-kusama.api.onfinality.io/public-ws",
               },
             },
             {
               info: "kabocha",
               homepage: "https://kabocha.network",
               paraId: 2113,
-              text: t("rpc.kusama.kabocha", "Kabocha", { ns: "apps-config" }),
+              text: "Kabocha",
               providers: {
                 JelliedOwl: "wss://kabocha.jelliedowl.com",
               },
@@ -893,7 +871,7 @@ export default defineComponent({
               info: "karura",
               homepage: "https://acala.network/karura/join-karura",
               paraId: 2000,
-              text: t("rpc.kusama.karura", "Karura", { ns: "apps-config" }),
+              text: "Karura",
               providers: {
                 "Acala Foundation 0": "wss://karura-rpc-0.aca-api.network",
                 "Acala Foundation 1": "wss://karura-rpc-1.aca-api.network",
@@ -908,9 +886,7 @@ export default defineComponent({
               info: "khala",
               homepage: "https://phala.network/",
               paraId: 2004,
-              text: t("rpc.kusama.khala", "Khala Network", {
-                ns: "apps-config",
-              }),
+              text: "Khala Network",
               providers: {
                 Phala: "wss://khala-api.phala.network/ws",
                 OnFinality: "wss://khala.api.onfinality.io/public-ws",
@@ -921,7 +897,7 @@ export default defineComponent({
               info: "kico",
               homepage: "https://dico.io/",
               paraId: 2107,
-              text: t("rpc.kusama.kico", "KICO", { ns: "apps-config" }),
+              text: "KICO",
               providers: {
                 "DICO Foundation": "wss://rpc.kico.dico.io",
                 "DICO Foundation 2": "wss://rpc.api.kico.dico.io",
@@ -931,9 +907,7 @@ export default defineComponent({
               info: "kilt",
               homepage: "https://www.kilt.io/",
               paraId: 2086,
-              text: t("rpc.kusama.kilt", "KILT Spiritnet", {
-                ns: "apps-config",
-              }),
+              text: "KILT Spiritnet",
               providers: {
                 "KILT Protocol": "wss://spiritnet.kilt.io/",
                 OnFinality: "wss://spiritnet.api.onfinality.io/public-ws",
@@ -944,9 +918,7 @@ export default defineComponent({
               info: "kintsugi",
               homepage: "https://kintsugi.interlay.io/",
               paraId: 2092,
-              text: t("rpc.kusama.kintsugi", "Kintsugi BTC", {
-                ns: "apps-config",
-              }),
+              text: "Kintsugi BTC",
               providers: {
                 "Kintsugi Labs": "wss://api-kusama.interlay.io/parachain",
                 OnFinality: "wss://kintsugi.api.onfinality.io/public-ws",
@@ -958,7 +930,7 @@ export default defineComponent({
               homepage: "http://apron.network/",
               isUnreachable: true,
               paraId: 2019,
-              text: t("rpc.kusama.kpron", "Kpron", { ns: "apps-config" }),
+              text: "Kpron",
               providers: {
                 Kpron: "wss://kusama-kpron-rpc.apron.network/",
               },
@@ -967,9 +939,7 @@ export default defineComponent({
               info: "listen",
               homepage: "https://listen.io/",
               paraId: 2118,
-              text: t("rpc.kusama.listen", "Listen Network", {
-                ns: "apps-config",
-              }),
+              text: "Listen Network",
               providers: {
                 "Listen Foundation 1": "wss://rpc.mainnet.listen.io",
                 "Listen Foundation 2": "wss://wss.mainnet.listen.io",
@@ -980,7 +950,7 @@ export default defineComponent({
               homepage: "https://kusama-crowdloan.litentry.com",
               paraId: 2106,
               isUnreachable: false,
-              text: t("rpc.kusama.litmus", "Litmus", { ns: "apps-config" }),
+              text: "Litmus",
               providers: {
                 Litentry: "wss://rpc.litmus-parachain.litentry.io",
               },
@@ -990,28 +960,26 @@ export default defineComponent({
               isUnreachable: true, // https://github.com/polkadot-js/apps/issues/5888
               homepage: "https://loomx.io/",
               paraId: 2080,
-              text: t("rpc.kusama.loomnetwork", "Loom Network", {
-                ns: "apps-config",
-              }),
+              text: "Loom Network",
               providers: {
                 LoomNetwork: "wss://kusama.dappchains.com",
               },
             },
             {
               info: "mangata",
-              isUnreachable: true, // https://github.com/polkadot-js/apps/issues/7295
               homepage: "https://mangata.finance",
               paraId: 2110,
-              text: t("rpc.kusama.mangata", "Mangata", { ns: "apps-config" }),
+              text: "Mangata",
               providers: {
                 Mangata: "wss://prod-kusama-collator-01.mangatafinance.cloud",
+                OnFinality: "wss://mangata-x.api.onfinality.io/public-ws",
               },
             },
             {
               info: "mars",
               homepage: "https://www.aresprotocol.io/mars",
               paraId: 2008,
-              text: t("rpc.kusama.mars", "Mars", { ns: "apps-config" }),
+              text: "Mars",
               providers: {
                 AresProtocol: "wss://wss.mars.aresprotocol.io",
               },
@@ -1020,9 +988,7 @@ export default defineComponent({
               info: "moonriver",
               homepage: "https://moonbeam.foundation/moonriver-crowdloan/",
               paraId: 2023,
-              text: t("rpc.kusama.moonriver", "Moonriver", {
-                ns: "apps-config",
-              }),
+              text: "Moonriver",
               providers: {
                 "Moonbeam Foundation":
                   "wss://wss.api.moonriver.moonbeam.network",
@@ -1035,28 +1001,28 @@ export default defineComponent({
               info: "heiko",
               homepage: "https://parallel.fi",
               paraId: 2085,
-              text: t("rpc.kusama.heiko", "Parallel Heiko", {
-                ns: "apps-config",
-              }),
+              text: "Parallel Heiko",
               providers: {
                 OnFinality: "wss://parallel-heiko.api.onfinality.io/public-ws",
                 Parallel: "wss://heiko-rpc.parallel.fi",
+                Dwellir: "wss://heiko-rpc.dwellir.com",
               },
             },
             {
               info: "picasso",
               homepage: "https://picasso.composable.finance/",
               paraId: 2087,
-              text: t("rpc.kusama.picasso", "Picasso", { ns: "apps-config" }),
+              text: "Picasso",
               providers: {
                 Composable: "wss://picasso-rpc.composable.finance",
+                Dwellir: "wss://picasso-rpc.dwellir.com",
               },
             },
             {
               info: "pichiu",
               homepage: "https://kylin.network/",
               paraId: 2102,
-              text: t("rpc.kusama.pichiu", "Pichiu", { ns: "apps-config" }),
+              text: "Pichiu",
               providers: {
                 "Kylin Network": "wss://kusama.kylin-node.co.uk",
               },
@@ -1066,9 +1032,7 @@ export default defineComponent({
               isUnreachable: true, // https://github.com/polkadot-js/apps/issues/6595
               homepage: "https://polkasmith.polkafoundry.com/",
               paraId: 2009,
-              text: t("rpc.kusama.polkasmith", "PolkaSmith by PolkaFoundry", {
-                ns: "apps-config",
-              }),
+              text: "PolkaSmith by PolkaFoundry",
               providers: {
                 PolkaSmith: "wss://wss-polkasmith.polkafoundry.com",
               },
@@ -1077,9 +1041,7 @@ export default defineComponent({
               info: "quartz",
               homepage: "https://unique.network/",
               paraId: 2095,
-              text: t("quartz.unique.network", "QUARTZ by UNIQUE", {
-                ns: "apps-config",
-              }),
+              text: "QUARTZ by UNIQUE",
               providers: {
                 Unique: "wss://quartz.unique.network",
                 OnFinality: "wss://quartz.api.onfinality.io/public-ws",
@@ -1091,38 +1053,27 @@ export default defineComponent({
               info: "robonomics",
               homepage: "http://robonomics.network/",
               paraId: 2048,
-              text: t("rpc.kusama.robonomics", "Robonomics", {
-                ns: "apps-config",
-              }),
+              text: "Robonomics",
               providers: {
                 Airalab: "wss://kusama.rpc.robonomics.network/",
+                OnFinality: "wss://robonomics.api.onfinality.io/public-ws",
               },
-            },
-            {
-              info: "trustbase",
-              isUnreachable: true, // no providers (yet)
-              homepage: "https://trustbase.network/",
-              paraId: 2078,
-              text: t("rpc.kusama.trustbase", "TrustBase", {
-                ns: "apps-config",
-              }),
-              providers: {},
             },
             {
               info: "sakura",
               homepage: "https://clover.finance/",
               isUnreachable: true,
               paraId: 2016,
-              text: t("rpc.kusama.sakura", "Sakura", { ns: "apps-config" }),
+              text: "Sakura",
               providers: {
                 Clover: "wss://api-sakura.clover.finance",
               },
             },
             {
               info: "shiden",
-              homepage: "https://shiden.plasmnet.io/",
+              homepage: "https://shiden.astar.network/",
               paraId: 2007,
-              text: t("rpc.kusama.shiden", "Shiden", { ns: "apps-config" }),
+              text: "Shiden",
               providers: {
                 StakeTechnologies: "wss://rpc.shiden.astar.network",
                 OnFinality: "wss://shiden.api.onfinality.io/public-ws",
@@ -1131,12 +1082,20 @@ export default defineComponent({
               },
             },
             {
+              info: "shiden",
+              homepage: "https://shiden.astar.network/",
+              paraId: 2120,
+              text: "Shiden Crowdloan 2",
+              isUnreachable: true,
+              providers: {
+                StakeTechnologies: "wss://rpc.shiden.astar.network",
+              },
+            },
+            {
               info: "sora_ksm",
               homepage: "https://sora.org/",
               paraId: 2011,
-              text: t("rpc.kusama.sora_ksm", "SORA Kusama Parachain", {
-                ns: "apps-config",
-              }),
+              text: "SORA Kusama Parachain",
               providers: {
                 Soramitsu:
                   "wss://ws.parachain-collator-1.c1.sora2.soramitsu.co.jp",
@@ -1146,9 +1105,7 @@ export default defineComponent({
               info: "subgame",
               homepage: "http://subgame.org/",
               paraId: 2018,
-              text: t("rpc.kusama.subgame", "SubGame Gamma", {
-                ns: "apps-config",
-              }),
+              text: "SubGame Gamma",
               providers: {
                 SubGame: "wss://gamma.subgame.org/",
               },
@@ -1157,9 +1114,7 @@ export default defineComponent({
               info: "subsocialX",
               homepage: "https://subsocial.network/",
               paraId: 2100,
-              text: t("rpc.kusama.subsocial", "SubsocialX", {
-                ns: "apps-config",
-              }),
+              text: "SubsocialX",
               providers: {
                 Dappforce: "wss://para.subsocial.network",
               },
@@ -1168,32 +1123,35 @@ export default defineComponent({
               info: "tanganika",
               homepage: "https://www.datahighway.com/",
               paraId: 2116,
-              text: t("rpc.kusama.tanganika", "Tanganika", {
-                ns: "apps-config",
-              }),
+              text: "Tanganika",
               providers: {
                 DataHighway: "wss://tanganika.datahighway.com",
               },
             },
             {
+              info: "trustbase",
+              isUnreachable: true, // no providers (yet)
+              homepage: "https://trustbase.network/",
+              paraId: 2078,
+              text: "TrustBase",
+              providers: {},
+            },
+            {
               info: "turing",
               homepage: "https://oak.tech",
               paraId: 2114,
-              text: t("rpc.turing.oak", "Turing Network", {
-                ns: "apps-config",
-              }),
+              text: "Turing Network",
               providers: {
                 OAK: "wss://rpc.turing.oak.tech",
                 OnFinality: "wss://turing.api.onfinality.io/public-ws",
+                Dwellir: "wss://turing-rpc.dwellir.com",
               },
             },
             {
               info: "unorthodox",
               homepage: "https://standard.tech/",
               paraId: 2094,
-              text: t("rpc.kusama.standard", "Unorthodox", {
-                ns: "apps-config",
-              }),
+              text: "Unorthodox",
               providers: {
                 "Standard Protocol": "wss://rpc.kusama.standard.tech",
               },
@@ -1202,13 +1160,34 @@ export default defineComponent({
               info: "zeitgeist",
               homepage: "https://zeitgeist.pm",
               paraId: 2101,
-              text: t("rpc.kusama.zeitgeist", "Zeitgeist", {
-                ns: "apps-config",
-              }),
+              text: "Zeitgeist",
               providers: {
                 ZeitgeistPM: "wss://rpc-0.zeitgeist.pm",
                 Dwellir: "wss://zeitgeist-rpc.dwellir.com",
+                OnFinality: "wss://zeitgeist.api.onfinality.io/public-ws",
               },
+            },
+            {
+              info: "statemine",
+              paraId: 1000,
+              text: "Statemine",
+              providers: {
+                Parity: "wss://statemine-rpc.polkadot.io",
+                OnFinality: "wss://statemine.api.onfinality.io/public-ws",
+                Dwellir: "wss://statemine-rpc.dwellir.com",
+              },
+              teleport: [-1],
+            },
+            {
+              info: "encointer",
+              homepage: "https://encointer.org/",
+              paraId: 1001,
+              text: "Encointer Network",
+              providers: {
+                "Encointer Association": "wss://kusama.api.encointer.org",
+                OnFinality: "wss://encointer.api.onfinality.io/public-ws",
+              },
+              teleport: [-1],
             },
           ];
           this.endpoints.push({

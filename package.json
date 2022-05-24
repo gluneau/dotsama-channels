@@ -15,8 +15,11 @@
   "dependencies": {
     "@polkadot/api": "^7.9.1",
     "@quasar/extras": "^1.13.6",
+    "axios": "^0.27.2",
     "core-js": "^3.6.5",
     "quasar": "^2.6.6",
+    "sharp": "^0.30.4",
+    "svg2png": "^4.1.1",
     "v-network-graph": "^0.5.0",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0"
