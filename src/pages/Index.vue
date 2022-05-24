@@ -262,14 +262,6 @@ import { version } from "../../package.json";
 import * as vNG from "v-network-graph";
 import { Loading, QSpinnerGears } from "quasar";
 
-const eventHandlers = {
-  "node:click": ({ node }) => {
-    const paraId = node.replace("node", "");
-    this.getCurrencies(this.chain.label, paraId);
-    console.log(node);
-  },
-};
-
 export default defineComponent({
   name: "PageIndex",
   data() {
@@ -279,7 +271,22 @@ export default defineComponent({
       nodes: {},
       edges: {},
       layers: {},
-      eventHandlers,
+      nodeOver: 2000,
+      eventHandlers: {
+        "node:click": ({ node }) => {
+          let paraId = +node.replace("node", "");
+          this.getCurrencies(this.chain.label, paraId);
+          console.log(node);
+        },
+        "node:pointerover": ({ node }) => {
+          this.nodeOver = +node.replace("node", "");
+          console.log(node);
+        },
+        "node:pointerout": ({ node }) => {
+          this.nodeOver = null;
+          console.log(node);
+        },
+      },
       endpoints: [],
       version: {},
       items: {},
@@ -551,7 +558,7 @@ export default defineComponent({
           edge: {
             selectable: true,
             normal: {
-              width: 3,
+              width: (n) => (n.sender !== this.nodeOver ? 1 : 3),
               color: (n) => (n.type === "request" ? "#ff0000" : "#4466cc"),
               dasharray: (n) => (n.type === "request" ? "10" : "#0"),
               linecap: "butt",
@@ -621,8 +628,11 @@ export default defineComponent({
       await api.disconnect();
     },
     async getCurrencies(chain, paraId) {
+      console.log("chain, paraId", chain, paraId);
+
       this.dialog = true;
       this.para = this.endpoints.find((c) => c.paraId === paraId);
+      console.log("this.para", this.para);
 
       if (
         !this.assets.find((c) => c.paraId === paraId && c.chain === chain) ||
@@ -670,7 +680,7 @@ export default defineComponent({
         assetMetadata.map((a) => {
           const h = a[1].toHuman();
 
-          console.log("h", h);
+          // console.log("h", h);
 
           // ZLK https://raw.githubusercontent.com/zenlinkpro/assets/master/blockchains/moonriver/assets/0x0f47ba9d9Bde3442b42175e51d6A367928A1173B/logo.png
 
@@ -694,7 +704,7 @@ export default defineComponent({
                 h.name + // .toUpperCase() +
                 ".png",
             });
-          } else if (paraId === 2023) {
+          } else if (paraId === 2023 || paraId === 2004) {
             asset.push({
               name: h.name,
               symbol: h.symbol,
