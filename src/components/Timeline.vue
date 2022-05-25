@@ -4,7 +4,7 @@
       <q-timeline-entry heading>
         About the Dotsama Channel App
       </q-timeline-entry>
-      <q-timeline-entry side="center">
+      <q-timeline-entry side="center" icon="help">
         <div>
           The Dotsama Channel App was born as a tool to visualise the growing
           network of HRMP connection between parachains and manage the different
@@ -23,7 +23,7 @@
         icon="account_circle"
       >
         <div>
-          <img width="80" src="icons/greg-smile-cropped.png" />
+          <img width="80" src="greg-smile-cropped.png" />
           Greg is a team member of
           <a target="_blank" href="https://acala.network/"><b>Acala</b></a> and
           the Lead Integrator.<br /><br /><i>
