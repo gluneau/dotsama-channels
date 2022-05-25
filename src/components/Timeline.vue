@@ -23,7 +23,10 @@
         icon="account_circle"
       >
         <div>
-          <img width="80" src="greg-smile-cropped.png" />
+          <img
+            width="80"
+            src="https://raw.githubusercontent.com/gluneau/dotsama-channels/master/public/greg-smile-cropped.png"
+          />
           Greg is a team member of
           <a target="_blank" href="https://acala.network/"><b>Acala</b></a> and
           the Lead Integrator.<br /><br /><i>
