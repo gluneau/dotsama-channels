@@ -1,6 +1,6 @@
 {
   "name": "channels",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Dotsama HRMP Channel and token App",
   "productName": "Dotsama HRMP Channel and token App",
   "author": "Gregory Luneau <gregory.luneau@gmail.com>",
@@ -16,6 +16,7 @@
     "@polkadot/api": "^7.9.1",
     "@quasar/extras": "^1.13.6",
     "axios": "^0.27.2",
+    "buffer": "^6.0.3",
     "core-js": "^3.6.5",
     "quasar": "^2.6.6",
     "sharp": "^0.30.4",

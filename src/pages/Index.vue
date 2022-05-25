@@ -275,6 +275,7 @@ import { ForceLayout } from "v-network-graph/lib/force-layout";
 import { version } from "../../package.json";
 import * as vNG from "v-network-graph";
 import { Loading, QSpinnerGears } from "quasar";
+import { Buffer } from "buffer";
 import Timeline from "components/Timeline.vue";
 
 export default defineComponent({
@@ -692,9 +693,43 @@ export default defineComponent({
         !this.assets.find((c) => c.paraId === paraId && c.chain === chain).asset
           .length
       ) {
+        const types = {
+          Asset: {
+            0: "u64",
+          },
+          AssetData: {
+            id: "Asset",
+            lot: "FixedU128",
+            price_step: "FixedU128",
+            maker_fee: "FixedU128",
+            taker_fee: "FixedU128",
+            multi_asset: "Option<MultiAsset>",
+            multi_location: "Option<MultiLocation>",
+            debt_weight: "i128",
+            buyout_priority: "u64",
+            asset_type: "AssetType",
+            is_dex_enabled: "bool",
+            collateral_enabled: "bool",
+          },
+          AssetType: {
+            _enum: {
+              Native: null,
+              Physical: null,
+              Synthetic: null,
+              Lp: "AmmPool",
+            },
+          },
+          AmmPool: {
+            _enum: {
+              Curve: "u32",
+              Yield: "u32",
+            },
+          },
+        };
+
         const wss = Object.values(this.para.providers)[0];
         const provider = new WsProvider(wss);
-        const api = await ApiPromise.create({ provider });
+        const api = await ApiPromise.create({ provider, types });
 
         const systemProperties = await api.rpc.system.properties();
         const symbol = systemProperties.tokenSymbol.value.toHuman()[0];
@@ -721,6 +756,31 @@ export default defineComponent({
         } else if (paraId === 9999) {
           // Basilisk 2090
           // assetMetadata = await api.query.assetRegistry.assets.entries();
+        } else if (paraId === 2024 || paraId === 2011) {
+          // Genshiro / Equilibrium
+          var currencyFromU64 = function (u64) {
+            var bytes = [];
+            var num = typeof u64 === "number" ? new BN(u64) : u64;
+            do {
+              bytes.unshift(num.modn(256));
+              num = num.divn(256);
+            } while (num.gtn(0));
+            return Buffer.from(bytes).toString("utf8").toUpperCase();
+          };
+
+          const assets = (await api.query.eqAssets.assets())
+            .unwrapOrDefault()
+            .map((a) => currencyFromU64(a.id[0]));
+
+          assets.map((a) => {
+            asset.push({
+              name: a,
+              symbol: a,
+              decimals,
+              image: "https://resources.acala.network/tokens/" + a + ".png",
+            });
+          });
+          // console.log("genshiro", assetMetadata);
         } else if (paraId === 2107) {
           // Kico, Dico
           assetMetadata = await api.query.currencies.dicoAssetsInfo.entries();
@@ -749,7 +809,7 @@ export default defineComponent({
           });
         }
         // fails
-        // ?genshiro kintsugi quartz shadow
+        // ? kintsugi quartz shadow
         //
 
         assetMetadata.map((a) => {
