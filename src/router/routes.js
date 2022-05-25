@@ -7,6 +7,15 @@ const routes = [
     // }],
   },
   {
+    path: "/:chain",
+    component: () => import("pages/Index.vue"),
+  },
+  {
+    path: "/:chain/:para",
+    component: () => import("pages/Index.vue"),
+  },
+
+  {
     path: "/did",
     // component: () => import("layouts/MainLayout.vue"),
     // children: [{ path: "",

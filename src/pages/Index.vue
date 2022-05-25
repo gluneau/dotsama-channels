@@ -20,7 +20,10 @@
           />
         </div>
         <q-toolbar-title> Channels </q-toolbar-title>
-        <div>v{{ version }}</div>
+        <div>
+          <q-btn flat @click="toggleRightDrawer" round dense icon="help" />
+          v{{ version }}
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -211,7 +214,7 @@
       overlay
       side="left"
       bordered
-      class="bg-content"
+      class="bg-grey-3"
     >
       <div class="row text-h5 justify-center">HRMP Channel List</div>
       <q-list dense bordered>
@@ -251,6 +254,17 @@
         </q-item>
       </q-list>
     </q-drawer>
+
+    <q-drawer
+      side="right"
+      v-model="rightDrawerOpen"
+      bordered
+      overlay
+      :width="800"
+      class="bg-grey-3"
+    >
+      <timeline />
+    </q-drawer>
   </q-layout>
 </template>
 
@@ -261,9 +275,13 @@ import { ForceLayout } from "v-network-graph/lib/force-layout";
 import { version } from "../../package.json";
 import * as vNG from "v-network-graph";
 import { Loading, QSpinnerGears } from "quasar";
+import Timeline from "components/Timeline.vue";
 
 export default defineComponent({
   name: "PageIndex",
+  components: {
+    Timeline,
+  },
   data() {
     return {
       layouts: {},
@@ -303,6 +321,7 @@ export default defineComponent({
       ],
       dialog: false,
       leftDrawerOpen: false,
+      rightDrawerOpen: false,
       chain: {
         label: "Kusama",
         value: "wss://kusama.api.onfinality.io/public-ws",
@@ -340,16 +359,50 @@ export default defineComponent({
   },
   async mounted() {
     this.version = version;
+
+    if (this.$route.params.chain) {
+      console.log("specific chain selected");
+      this.chain = this.chainOptions.find(
+        (c) => c.label.toLowerCase() === this.$route.params.chain.toLowerCase()
+      )
+        ? this.chainOptions.find(
+            (c) =>
+              c.label.toLowerCase() === this.$route.params.chain.toLowerCase()
+          )
+        : this.chainOptions[0];
+    }
+
     Loading.show({
       spinner: QSpinnerGears,
       message: "Loading data from the parachain.  Hang on...",
     });
     await this.load();
     Loading.hide();
+
+    if (this.$route.params.para) {
+      console.log("specific para selected", this.$route.params.para);
+      let paraId = null;
+
+      if (isNaN(this.$route.params.para)) {
+        paraId = +this.endpoints.find(
+          (c) => c.info.toLowerCase() === this.$route.params.para.toLowerCase()
+        ).paraId;
+      } else {
+        paraId = +this.$route.params.para;
+      }
+
+      console.log("paraId", paraId, isNaN(paraId));
+      if (this.endpoints.find((c) => c.paraId === paraId)) {
+        this.getCurrencies(this.chain.label, paraId);
+      }
+    }
   },
   methods: {
     toggleLeftDrawer() {
       this.leftDrawerOpen = !this.leftDrawerOpen;
+    },
+    toggleRightDrawer() {
+      this.rightDrawerOpen = !this.rightDrawerOpen;
     },
     doLoad() {
       this.load()
@@ -377,7 +430,7 @@ export default defineComponent({
 
       hrmpChannels.map((e) => {
         const h = e[0].toHuman();
-        console.log("h", h);
+        // console.log("h", h);
         let sender = parseInt(h[0].sender.replace(",", ""), 10);
         let recipient = parseInt(h[0].recipient.replace(",", ""), 10);
 
@@ -445,7 +498,7 @@ export default defineComponent({
 
       requestsList.map((e) => {
         const h = e.toHuman();
-        console.log("h-rl", h);
+        // console.log("h-rl", h);
         const sender = parseInt(h.sender.replace(",", ""), 10);
         const recipient = parseInt(h.recipient.replace(",", ""), 10);
 
@@ -595,7 +648,7 @@ export default defineComponent({
               },
               target: {
                 type: "arrow",
-                width: 5,
+                width: 10,
                 height: 5,
                 margin: 0,
                 units: "strokeWidth",
@@ -643,19 +696,31 @@ export default defineComponent({
         const provider = new WsProvider(wss);
         const api = await ApiPromise.create({ provider });
 
-        // const [assetMetadatas, foreignAssetLocations] = await Promise.all([
-        //   api.query.assetRegistry.assetMetadatas.entries(),
-        //   api.query.assetRegistry.foreignAssetLocations(null),
-        // ]);
+        const systemProperties = await api.rpc.system.properties();
+        const symbol = systemProperties.tokenSymbol.value.toHuman()[0];
+        const decimals = systemProperties.tokenDecimals.value.toHuman()[0];
+        console.log("systemProperties", systemProperties);
 
+        let asset = [];
         let assetMetadata = [];
+
         if (paraId === 2000 || paraId === 2001) {
           // Acala, Karura, Bifrost
           assetMetadata =
             await api.query.assetRegistry.assetMetadatas.entries();
-        } else if (paraId === 2090) {
-          // Basilisk
-          assetMetadata = await api.query.assetRegistry.assets.entries();
+
+          if (paraId === 2001) {
+            asset.push({
+              name: symbol,
+              symbol,
+              decimals,
+              image:
+                "https://resources.acala.network/tokens/" + symbol + ".png",
+            });
+          }
+        } else if (paraId === 9999) {
+          // Basilisk 2090
+          // assetMetadata = await api.query.assetRegistry.assets.entries();
         } else if (paraId === 2107) {
           // Kico, Dico
           assetMetadata = await api.query.currencies.dicoAssetsInfo.entries();
@@ -668,15 +733,25 @@ export default defineComponent({
         ) {
           // calimari khala moonriver moonbeam statemine heiko
           assetMetadata = await api.query.assets.metadata.entries();
+
+          asset.push({
+            name: symbol,
+            symbol,
+            decimals,
+            image: "https://resources.acala.network/tokens/" + symbol + ".png",
+          });
         } else {
-          //
-          assetMetadata = await api.query.assets.metadata.entries();
+          asset.push({
+            name: symbol,
+            symbol,
+            decimals,
+            image: "https://resources.acala.network/tokens/" + symbol + ".png",
+          });
         }
         // fails
         // ?genshiro kintsugi quartz shadow
         //
 
-        let asset = [];
         assetMetadata.map((a) => {
           const h = a[1].toHuman();
 
@@ -694,15 +769,14 @@ export default defineComponent({
                 h.metadata.symbol + // .toUpperCase() +
                 ".png",
             });
-          } else if (paraId === 2090) {
+          } else if (paraId === 9999) {
+            console.log("assetMetadata", h);
             asset.push({
               name: h.name,
               symbol: h.name,
-              decimals: h.decimals,
+              decimals: h.decimal,
               image:
-                "https://resources.acala.network/tokens/" +
-                h.name + // .toUpperCase() +
-                ".png",
+                "https://resources.acala.network/tokens/" + h.name + ".png",
             });
           } else if (paraId === 2023 || paraId === 2004) {
             asset.push({
@@ -711,7 +785,7 @@ export default defineComponent({
               decimals: h.decimals,
               image:
                 "https://resources.acala.network/tokens/" +
-                h.symbol.replace("xc", "") + // .toUpperCase() +
+                h.symbol.replace("xc", "") +
                 ".png",
             });
           } else {
@@ -720,9 +794,7 @@ export default defineComponent({
               symbol: h.symbol,
               decimals: h.decimals,
               image:
-                "https://resources.acala.network/tokens/" +
-                h.symbol + // .toUpperCase() +
-                ".png",
+                "https://resources.acala.network/tokens/" + h.symbol + ".png",
             });
           }
         });
