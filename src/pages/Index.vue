@@ -694,7 +694,10 @@ export default defineComponent({
       this.dialog = true;
       this.para = this.endpoints.find((c) => c.paraId === paraId);
 
-      if (this.rocEndpoints.find((c) => c.paraId === paraId))
+      if (
+        chain === "Rococo" &&
+        this.rocEndpoints.find((c) => c.paraId === paraId)
+      )
         this.para.providers = this.rocEndpoints.find(
           (c) => c.paraId === paraId
         ).providers;
@@ -741,9 +744,12 @@ export default defineComponent({
                 "https://resources.acala.network/tokens/" + symbol + ".png",
             });
           }
-        } else if (paraId === 9999) {
+        } else if (paraId === 2088) {
           // Basilisk 2090
           // assetMetadata = await api.query.assetRegistry.assets.entries();
+          assetMetadata = await api.query.ormlTokens.totalIssuance.entries();
+
+          // console.log("tokens test", assetMetadata);
         } else if (
           (paraId === 2024 && (chain === "Kusama" || chain === "Rococo")) ||
           (paraId === 2011 && chain === "Polkadot")
@@ -787,9 +793,11 @@ export default defineComponent({
           paraId === 2004 ||
           paraId === 2006 ||
           paraId === 2007 ||
+          paraId === 2012 ||
           paraId === 2102 ||
           paraId === 2120 ||
           paraId === 2023 ||
+          paraId === 2048 ||
           paraId === 1000 ||
           paraId === 2085
         ) {
@@ -821,7 +829,7 @@ export default defineComponent({
         assetMetadata.map((a) => {
           const h = a[1].toHuman();
 
-          // console.log("h", h);
+          console.log("h", h);
 
           // ZLK https://raw.githubusercontent.com/zenlinkpro/assets/master/blockchains/moonriver/assets/0x0f47ba9d9Bde3442b42175e51d6A367928A1173B/logo.png
 
@@ -1657,6 +1665,7 @@ export default defineComponent({
           break;
       }
 
+      // https://github.com/polkadot-js/apps/blob/master/packages/apps-config/src/endpoints/testingRelayRococo.ts
       this.rocEndpoints = [
         {
           info: "arctic",
