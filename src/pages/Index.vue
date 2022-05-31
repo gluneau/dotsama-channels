@@ -787,6 +787,7 @@ export default defineComponent({
           paraId === 2004 ||
           paraId === 2006 ||
           paraId === 2007 ||
+          paraId === 2102 ||
           paraId === 2120 ||
           paraId === 2023 ||
           paraId === 1000 ||
@@ -795,12 +796,16 @@ export default defineComponent({
           // calimari khala moonriver moonbeam statemine heiko shiden astar
           assetMetadata = await api.query.assets.metadata.entries();
 
-          asset.push({
-            name: symbol,
-            symbol,
-            decimals,
-            image: "https://resources.acala.network/tokens/" + symbol + ".png",
-          });
+          // has their token in the assets.metadata
+          if (paraId !== 2102) {
+            asset.push({
+              name: symbol,
+              symbol,
+              decimals,
+              image:
+                "https://resources.acala.network/tokens/" + symbol + ".png",
+            });
+          }
         } else {
           asset.push({
             name: symbol,
