@@ -46,7 +46,7 @@
         <div>
           <img
             width="80"
-            src="https://raw.githubusercontent.com/TalismanSociety/talisman-web/d835267628aeb79ea132f0f7f1d3366b7a6997cf/src/assets/spin_red.gif"
+            src="https://github.com/TalismanSociety/talisman-web/blob/prod/public/logo512.png?raw=true"
           />
           <a target="_blank" href="https://talisman.xyz/"><b>Talisman</b></a> is
           a web3 wallet that unlocks a universe of applications in Polkadot and
@@ -90,12 +90,23 @@
 
       <q-timeline-entry heading>Updates</q-timeline-entry>
 
+      <q-timeline-entry title="Updates" subtitle="May 31, 2022" side="right">
+        <div>
+          <ul>
+            <li>Added Genshiro/EQ token list libs</li>
+            <li>Using Rococo WSS when available</li>
+            <li>Refactored chain image URL with exceptions</li>
+          </ul>
+        </div>
+      </q-timeline-entry>
+
       <q-timeline-entry title="Updates" subtitle="May 24, 2022" side="left">
         <div>
           <ul>
             <li>Added this About page</li>
             <li>Added path to chain and parachain to URL</li>
             <li>Added Click on Parachain Icon for opening token list</li>
+            <li>Added mouseover to highlight outgoing connections</li>
           </ul>
         </div>
       </q-timeline-entry>

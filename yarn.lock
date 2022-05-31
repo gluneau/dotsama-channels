@@ -999,6 +999,11 @@
   resolved "https://registry.yarnpkg.com/@dash14/svg-pan-zoom/-/svg-pan-zoom-3.6.5.tgz#80674ae1984565973390800aa99b8a556aa44dce"
   integrity sha512-SKv/gdBIRMycL7XhxnWh8v4Q2Jp6JoRol79uDjC+xXqIZaaVlrR/bHFjnlgq6koAgQoq6H7In+fHJ5rlkg2flQ==
 
+"@equilab/definitions@^1.4.11":
+  version "1.4.11"
+  resolved "https://registry.yarnpkg.com/@equilab/definitions/-/definitions-1.4.11.tgz#e664178f1058a4babad386e6b7e62b47307bb6e9"
+  integrity sha512-rlp4ADHgjpzbtJz+Pify1Z/3D3IcAe/ksCQgmBnCgeqEsPltyO54Rd7tGxNXl4eTobNWL8kbJ9wkl3rOx/i8rw==
+
 "@eslint/eslintrc@^0.4.3":
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-0.4.3.tgz#9e42981ef035beb3dd49add17acb96e8ff6f394c"

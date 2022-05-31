@@ -21,6 +21,7 @@
         </div>
         <q-toolbar-title> Channels </q-toolbar-title>
         <div>
+          About
           <q-btn flat @click="toggleRightDrawer" round dense icon="help" />
           v{{ version }}
         </div>
@@ -62,15 +63,7 @@
               :y="-config.radius * scale * 2"
               :width="config.radius * scale * 4"
               :height="config.radius * scale * 4"
-              :xlink:href="
-                Number.isInteger(nodes[nodeId].name)
-                  ? `https://cdn.pixabay.com/photo/2015/08/27/10/14/icon-909830_1280.png`
-                  : `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/${
-                      chain.label === 'Polkadot' || chain.label === 'Westend'
-                        ? 0
-                        : 2
-                    }/parathreads/${nodes[nodeId].number}/assets/logo.svg`
-              "
+              :xlink:href="image(chain.label, nodes[nodeId].number)"
               clip-path="url(#faceCircle)"
             />
             <!-- circle for drawing stroke -->
@@ -83,35 +76,12 @@
               v-bind="slotProps"
             />
           </template>
-          <!-- Additional layer --
-          <template #badge="{ scale }" -->
-          <!--
-        If the `view.scalingObjects` config is `false`(default),
-        scaling does not change the display size of the nodes/edges.
-        The `scale` is passed as a scaling factor to implement
-        this behavior. --
-            <circle
-              v-for="(pos, node) in layouts.nodes"
-              :key="node"
-              :cx="pos.x + 9 * scale"
-              :cy="pos.y - 9 * scale"
-              :r="4 * scale"
-              :fill="nodes[node].active ? '#00cc00' : '#ff5555'"
-              style="pointer-events: none"
-            />
-          </template -->
         </v-network-graph>
         <q-dialog v-model="dialog">
           <q-card>
             <q-toolbar>
               <q-avatar>
-                <img
-                  :src="`https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/${
-                    chain.label === 'Polkadot' || chain.label === 'Westend'
-                      ? 0
-                      : 2
-                  }/parathreads/${para.paraId}/assets/logo.svg`"
-                />
+                <img :src="image(chain.label, para.paraId)" />
               </q-avatar>
 
               <q-toolbar-title
@@ -256,11 +226,13 @@
     </q-drawer>
 
     <q-drawer
+      ref="right"
       side="right"
+      v-if="rightDrawerOpen"
       v-model="rightDrawerOpen"
       bordered
       overlay
-      :width="800"
+      :width="600"
       class="bg-grey-3"
     >
       <timeline />
@@ -276,6 +248,8 @@ import { version } from "../../package.json";
 import * as vNG from "v-network-graph";
 import { Loading, QSpinnerGears } from "quasar";
 import { Buffer } from "buffer";
+import { equilibrium, equilibriumNext } from "@equilab/definitions";
+import { genshiro } from "@equilab/definitions";
 import Timeline from "components/Timeline.vue";
 
 export default defineComponent({
@@ -307,6 +281,7 @@ export default defineComponent({
         },
       },
       endpoints: [],
+      rocEndpoints: [],
       version: {},
       items: {},
       para: {
@@ -347,6 +322,7 @@ export default defineComponent({
       ],
     };
   },
+  computed: {},
   watch: {
     async chain() {
       console.log("loading...");
@@ -399,6 +375,36 @@ export default defineComponent({
     }
   },
   methods: {
+    image(chain, paraId) {
+      let image = "";
+      let name = this.endpoints.find((c) => c.paraId === paraId)
+        ? this.endpoints
+            .find((c) => c.paraId === paraId)
+            .info[0].toUpperCase() +
+          this.endpoints.find((c) => c.paraId === paraId).info.substring(1)
+        : paraId;
+
+      if (Number.isInteger(name)) {
+        image = `https://cdn.pixabay.com/photo/2015/08/27/10/14/icon-909830_1280.png`;
+      } else {
+        if (chain === "Rococo") {
+          if (paraId === 2021 || paraId === 2006) {
+            image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/0/parathreads/${paraId}/assets/logo.svg`;
+          } else {
+            image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/2/parathreads/${paraId}/assets/logo.svg`;
+          }
+        } else {
+          if (chain === "Kusama" && paraId === 2007) {
+            paraId = 2120;
+          }
+          image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/${
+            chain === "Polkadot" || chain === "Westend" ? 0 : 2
+          }/parathreads/${paraId}/assets/logo.svg`;
+        }
+      }
+
+      return image;
+    },
     toggleLeftDrawer() {
       this.leftDrawerOpen = !this.leftDrawerOpen;
     },
@@ -682,10 +688,17 @@ export default defineComponent({
       await api.disconnect();
     },
     async getCurrencies(chain, paraId) {
+      const BN = require("bn.js");
       console.log("chain, paraId", chain, paraId);
 
       this.dialog = true;
       this.para = this.endpoints.find((c) => c.paraId === paraId);
+
+      if (this.rocEndpoints.find((c) => c.paraId === paraId))
+        this.para.providers = this.rocEndpoints.find(
+          (c) => c.paraId === paraId
+        ).providers;
+
       console.log("this.para", this.para);
 
       if (
@@ -693,40 +706,15 @@ export default defineComponent({
         !this.assets.find((c) => c.paraId === paraId && c.chain === chain).asset
           .length
       ) {
-        const types = {
-          Asset: {
-            0: "u64",
-          },
-          AssetData: {
-            id: "Asset",
-            lot: "FixedU128",
-            price_step: "FixedU128",
-            maker_fee: "FixedU128",
-            taker_fee: "FixedU128",
-            multi_asset: "Option<MultiAsset>",
-            multi_location: "Option<MultiLocation>",
-            debt_weight: "i128",
-            buyout_priority: "u64",
-            asset_type: "AssetType",
-            is_dex_enabled: "bool",
-            collateral_enabled: "bool",
-          },
-          AssetType: {
-            _enum: {
-              Native: null,
-              Physical: null,
-              Synthetic: null,
-              Lp: "AmmPool",
-            },
-          },
-          AmmPool: {
-            _enum: {
-              Curve: "u32",
-              Yield: "u32",
-            },
-          },
-        };
+        let types = {};
 
+        if (paraId === 2024 && (chain === "Kusama" || chain === "Rococo")) {
+          types = genshiro.types;
+        } else if (paraId === 2011 && chain === "Polkadot") {
+          types = equilibrium.types;
+        }
+
+        console.log("types", types);
         const wss = Object.values(this.para.providers)[0];
         const provider = new WsProvider(wss);
         const api = await ApiPromise.create({ provider, types });
@@ -756,7 +744,10 @@ export default defineComponent({
         } else if (paraId === 9999) {
           // Basilisk 2090
           // assetMetadata = await api.query.assetRegistry.assets.entries();
-        } else if (paraId === 2024 || paraId === 2011) {
+        } else if (
+          (paraId === 2024 && (chain === "Kusama" || chain === "Rococo")) ||
+          (paraId === 2011 && chain === "Polkadot")
+        ) {
           // Genshiro / Equilibrium
           var currencyFromU64 = function (u64) {
             var bytes = [];
@@ -770,7 +761,14 @@ export default defineComponent({
 
           const assets = (await api.query.eqAssets.assets())
             .unwrapOrDefault()
-            .map((a) => currencyFromU64(a.id[0]));
+            .map((a) => {
+              if (a.id.toRawType() == "u64") {
+                return a.id;
+              } else {
+                return a.id[0];
+              }
+            })
+            .map((id) => currencyFromU64(parseInt(id.toString(), 10)));
 
           assets.map((a) => {
             asset.push({
@@ -780,18 +778,21 @@ export default defineComponent({
               image: "https://resources.acala.network/tokens/" + a + ".png",
             });
           });
-          // console.log("genshiro", assetMetadata);
+          console.log("assets", paraId, chain, assets);
         } else if (paraId === 2107) {
           // Kico, Dico
           assetMetadata = await api.query.currencies.dicoAssetsInfo.entries();
         } else if (
           paraId === 2084 ||
           paraId === 2004 ||
+          paraId === 2006 ||
+          paraId === 2007 ||
+          paraId === 2120 ||
           paraId === 2023 ||
           paraId === 1000 ||
           paraId === 2085
         ) {
-          // calimari khala moonriver moonbeam statemine heiko
+          // calimari khala moonriver moonbeam statemine heiko shiden astar
           assetMetadata = await api.query.assets.metadata.entries();
 
           asset.push({
@@ -1332,15 +1333,28 @@ export default defineComponent({
               teleport: [-1],
             },
           ];
-          this.endpoints.push({
-            info: "efinity",
-            homepage: "https://efinity.io",
-            paraId: 2021,
-            text: "Efinity",
-            providers: {
-              Efinity: "wss://rpc.efinity.io",
+          this.endpoints.push(
+            {
+              info: "efinity",
+              homepage: "https://efinity.io",
+              paraId: 2021,
+              text: "Efinity",
+              providers: {
+                Efinity: "wss://rpc.efinity.io",
+              },
             },
-          });
+            {
+              info: "astar",
+              homepage: "https://astar.network",
+              paraId: 2006,
+              text: "Astar",
+              providers: {
+                Astar: "wss://rpc.astar.network",
+                OnFinality: "wss://astar.api.onfinality.io/public-ws",
+                Dwellir: "wss://astar-rpc.dwellir.com",
+              },
+            }
+          );
           break;
         case "Polkadot":
         case "Westend":
@@ -1637,6 +1651,260 @@ export default defineComponent({
           });
           break;
       }
+
+      this.rocEndpoints = [
+        {
+          info: "arctic",
+          isUnreachable: true, // https://github.com/polkadot-js/apps/issues/7420
+          paraId: 3025,
+          text: "Arctic",
+          providers: {
+            Arctic: "wss://arctic-rpc-parachain.icenetwork.io:9944",
+          },
+        },
+        {
+          info: "rococoBajun",
+          isUnreachable: true, // https://github.com/polkadot-js/apps/issues/7593
+          paraId: 3026,
+          text: "Bajun Network",
+          providers: {
+            AjunaNetwork: "wss://rpc-rococo.bajun.network",
+          },
+        },
+        {
+          info: "rococoBasilisk",
+          paraId: 2090,
+          text: "Basilisk",
+          providers: {
+            "Galactic Council": "wss://rpc-01.basilisk-rococo.hydradx.io",
+          },
+        },
+        {
+          info: "rococoBitgreen",
+          paraId: 3024,
+          text: "Bitgreen",
+          providers: {
+            Bitgreen: "wss://rococobitgreen.abhath-labs.com",
+          },
+        },
+        {
+          info: "rococoCatalyst",
+          paraId: 2031,
+          text: "Catalyst",
+          providers: {
+            Centrifuge: "wss://fullnode.catalyst.cntrfg.com",
+          },
+        },
+        {
+          info: "rococoDali",
+          paraId: 2087,
+          text: "Dali",
+          providers: {
+            Composable: "wss://rpc.composablefinance.ninja",
+          },
+        },
+        {
+          info: "rococoDolphin",
+          paraId: 2084,
+          text: "Dolphin",
+          providers: {
+            "Manta Network": "wss://anjie.rococo.dolphin.engineering",
+          },
+        },
+        {
+          info: "rocfinity",
+          paraId: 2051,
+          text: "Efinity",
+          providers: {
+            Efinity: "wss://rpc.rococo.efinity.io",
+          },
+        },
+        {
+          info: "rococoGenshiro",
+          paraId: 2024,
+          text: "Genshiro Rococo Testnet",
+          providers: {
+            Equilibrium:
+              "wss://parachain-testnet.equilab.io/rococo/collator/node1/wss",
+          },
+        },
+        {
+          info: "rococoGM",
+          paraId: 3019,
+          text: "GM Parachain",
+          providers: {
+            "GM or Die DAO": "wss://rococo.gmordie.com",
+          },
+        },
+        {
+          info: "rococoImbue",
+          paraId: 3017,
+          text: "Imbue Network",
+          providers: {
+            "Imbue Network": "wss://rococo.imbue.network",
+          },
+        },
+        {
+          info: "rococoIntegritee",
+          paraId: 3002,
+          text: "Integritee Network",
+          providers: {
+            Integritee: "wss://rococo.api.integritee.network",
+          },
+        },
+        {
+          info: "rococoLitentry",
+          paraId: 2106,
+          text: "Litentry",
+          providers: {
+            Litentry: "wss://rpc.rococo-parachain-sg.litentry.io",
+          },
+        },
+        {
+          info: "rococoMoonsama",
+          isDisabled: true, // https://github.com/polkadot-js/apps/issues/7526
+          paraId: 2055,
+          text: "Moonsama",
+          providers: {
+            Moonsama: "wss://moonsama-testnet-rpc.moonsama.com",
+          },
+        },
+        {
+          info: "rococoNodle",
+          paraId: 2026,
+          text: "Nodle",
+          providers: {
+            OnFinality:
+              "wss://node-6913072722034561024.lh.onfinality.io/ws?apikey=84d77e2e-3793-4785-8908-5096cffea77a",
+          },
+        },
+        {
+          info: "rococoOriginTrailParachain",
+          homepage: "https://parachain.origintrail.io",
+          paraId: 3005,
+          text: "OriginTrail Parachain Testnet",
+          providers: {
+            TraceLabs:
+              "wss://parachain-testnet-loadbalancer.origin-trail.network/",
+          },
+        },
+        {
+          info: "rococoPangolin",
+          paraId: 2105,
+          text: "Pangolin Parachain",
+          providers: {
+            "Darwinia Network": "wss://pangolin-parachain-rpc.darwinia.network",
+          },
+        },
+        {
+          info: "rococoKilt",
+          paraId: 2015,
+          text: "RILT",
+          providers: {
+            "KILT Protocol": "wss://rococo.kilt.io",
+          },
+        },
+        {
+          info: "robonomics",
+          homepage: "http://robonomics.network/",
+          paraId: 2048,
+          text: "Robonomics",
+          providers: {
+            Airalab: "wss://rococo.rpc.robonomics.network",
+          },
+        },
+        {
+          info: "snowbridge",
+          paraId: 3016,
+          text: "Snowbridge",
+          providers: {
+            Snowfork: "wss://rococo-rpc.snowbridge.network",
+          },
+        },
+        {
+          info: "rococoSubsocial",
+          paraId: 2100,
+          text: "SoonsocialX",
+          providers: {
+            DappForce: "wss://rco-para.subsocial.network",
+          },
+        },
+        {
+          info: "rococoSpreehafen",
+          paraId: 2116,
+          text: "Spreehafen",
+          providers: {
+            DataHighway: "wss://spreehafen.datahighway.com",
+          },
+        },
+        {
+          info: "t0rn",
+          paraId: 3333,
+          text: "t0rn",
+          providers: {
+            t3rn: "wss://dev.net.t3rn.io",
+          },
+        },
+        {
+          info: "rococoTuring",
+          paraId: 2114,
+          text: "Turing Network (Staging)",
+          providers: {
+            OAK: "wss://rpc.turing-staging.oak.tech",
+          },
+        },
+        {
+          info: "rococoVirto",
+          paraId: 3003,
+          text: "Virto",
+          providers: {
+            VirtoNetwork: "wss://rococo.virtonetwork.xyz",
+          },
+        },
+        {
+          info: "rococoZeitgeist",
+          isDisabled: true, // See https://github.com/polkadot-js/apps/issues/5842
+          paraId: 2050,
+          text: "Zeitgeist PC",
+          providers: {
+            Zeitggeist: "wss://roc.zeitgeist.pm",
+          },
+        },
+        {
+          info: "rococoStatemint",
+          paraId: 1000,
+          text: "Rockmine",
+          providers: {
+            Parity: "wss://rococo-statemint-rpc.polkadot.io",
+          },
+          teleport: [-1],
+        },
+        {
+          info: "rococoContracts",
+          paraId: 1002,
+          text: "Contracts",
+          providers: {
+            Parity: "wss://rococo-contracts-rpc.polkadot.io",
+          },
+          teleport: [-1],
+        },
+        {
+          info: "encointer",
+          homepage: "https://encointer.org/",
+          paraId: 1003,
+          text: "Encointer Lietaer",
+          providers: {
+            "Encointer Association": "wss://rococo.api.encointer.org",
+          },
+          teleport: [-1],
+        },
+      ];
+      this.rocEndpoints.push({
+        paraId: 2000,
+        providers: {
+          Acala: "wss://karura-rococo.aca-dev.network",
+        },
+      });
     },
   },
 });
