@@ -1899,12 +1899,20 @@ export default defineComponent({
           teleport: [-1],
         },
       ];
-      this.rocEndpoints.push({
-        paraId: 2000,
-        providers: {
-          Acala: "wss://karura-rococo.aca-dev.network",
+      this.rocEndpoints.push(
+        {
+          paraId: 2000,
+          providers: {
+            Acala: "wss://karura-rococo.aca-dev.network",
+          },
         },
-      });
+        {
+          paraId: 2102,
+          providers: {
+            Pichiu: "wss://pichiu-rococo-01.onebitdev.com",
+          },
+        }
+      );
     },
   },
 });
