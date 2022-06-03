@@ -390,6 +390,8 @@ export default defineComponent({
         if (chain === "Rococo") {
           if (paraId === 2021 || paraId === 2006) {
             image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/0/parathreads/${paraId}/assets/logo.svg`;
+          } else if (paraId === 3019) {
+            image = `https://resources.acala.network/networks/gm.png`;
           } else {
             image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/2/parathreads/${paraId}/assets/logo.svg`;
           }
@@ -801,7 +803,7 @@ export default defineComponent({
           paraId === 1000 ||
           paraId === 2085
         ) {
-          // calimari khala moonriver moonbeam statemine heiko shiden astar
+          // calimari khala moonriver moonbeam statemine heiko parallel shiden astar
           assetMetadata = await api.query.assets.metadata.entries();
 
           // has their token in the assets.metadata
@@ -1366,6 +1368,16 @@ export default defineComponent({
                 OnFinality: "wss://astar.api.onfinality.io/public-ws",
                 Dwellir: "wss://astar-rpc.dwellir.com",
               },
+            },
+            {
+              info: "origintrail-parachain",
+              homepage: "https://parachain.origintrail.io",
+              isUnreachable: true,
+              text: "OriginTrail Parachain",
+              paraId: 2043,
+              providers: {
+                TraceLabs: "wss://parachain-rpc.origin-trail.network",
+              },
             }
           );
           break;
@@ -1927,6 +1939,15 @@ export default defineComponent({
           },
         }
       );
+
+      if (chain === "Rococo") {
+        this.rocEndpoints.map((r) => {
+          r.info = r.info ? r.info.replace("rococo", "") : "";
+          if (this.endpoints.find((e) => e.paraId !== r.paraId)) {
+            this.endpoints.push(r);
+          }
+        });
+      }
     },
   },
 });
