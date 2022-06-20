@@ -90,6 +90,15 @@
 
       <q-timeline-entry heading>Updates</q-timeline-entry>
 
+      <q-timeline-entry title="Updates" subtitle="June 13, 2022" side="left">
+        <div>
+          <ul>
+            <li>Added Basilisk/HydraDX token list api</li>
+            <li>Dark Mode, new color scheme</li>
+          </ul>
+        </div>
+      </q-timeline-entry>
+
       <q-timeline-entry title="Updates" subtitle="May 31, 2022" side="right">
         <div>
           <ul>

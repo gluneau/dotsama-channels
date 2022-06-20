@@ -1,6 +1,6 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-header elevated>
+    <q-header elevated style="background-color: #e6007a">
       <q-toolbar>
         <q-btn
           flat
@@ -21,6 +21,12 @@
         </div>
         <q-toolbar-title> Channels </q-toolbar-title>
         <div>
+          <q-toggle
+            v-model="mode"
+            checked-icon="dark_mode"
+            color="#40E0D0"
+            unchecked-icon="light_mode"
+          />
           About
           <q-btn flat @click="toggleRightDrawer" round dense icon="help" />
           v{{ version }}
@@ -71,7 +77,7 @@
               class="face-circle"
               :r="config.radius * scale * 2"
               fill="none"
-              :stroke="nodes[nodeId].type === 'request' ? '#ff0000' : '#808080'"
+              :stroke="nodes[nodeId].type === 'request' ? '#e6007a' : '#40E0D0'"
               :stroke-width="1 * scale * 2"
               v-bind="slotProps"
             />
@@ -179,13 +185,7 @@
       </q-page>
     </q-page-container>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      overlay
-      side="left"
-      bordered
-      class="bg-grey-3"
-    >
+    <q-drawer v-model="leftDrawerOpen" overlay side="left" bordered class="">
       <div class="row text-h5 justify-center">HRMP Channel List</div>
       <q-list dense bordered>
         <q-item v-for="item in items" v-bind:key="item.label">
@@ -233,7 +233,7 @@
       bordered
       overlay
       :width="600"
-      class="bg-grey-3"
+      class=""
     >
       <timeline />
     </q-drawer>
@@ -251,6 +251,7 @@ import { Buffer } from "buffer";
 import { equilibrium, equilibriumNext } from "@equilab/definitions";
 import { genshiro } from "@equilab/definitions";
 import Timeline from "components/Timeline.vue";
+import { useQuasar } from "quasar";
 
 export default defineComponent({
   name: "PageIndex",
@@ -295,6 +296,7 @@ export default defineComponent({
           asset: [],
         },
       ],
+      mode: true,
       dialog: false,
       leftDrawerOpen: false,
       rightDrawerOpen: false,
@@ -333,9 +335,17 @@ export default defineComponent({
       await this.load();
       Loading.hide();
     },
+    mode() {
+      this.node = !this.mode;
+      this.$q.dark.set(this.mode);
+
+      this.configs.node.label.color = this.mode ? "#ffffff" : "#000000";
+    },
   },
   async mounted() {
     this.version = version;
+    const $q = useQuasar();
+    $q.dark.set(true);
 
     if (this.$route.params.chain) {
       console.log("specific chain selected");
@@ -611,6 +621,7 @@ export default defineComponent({
           node: {
             normal: {},
             label: {
+              color: this.$q.dark.isActive ? "#ffffff" : "#000000",
               visible: true,
               fontSize: 40,
               margin: 20,
@@ -621,7 +632,12 @@ export default defineComponent({
             selectable: true,
             normal: {
               width: (n) => (n.sender !== this.nodeOver ? 1 : 3),
-              color: (n) => (n.type === "request" ? "#ff0000" : "#4466cc"),
+              // width: (n) =>
+              //   (n.sender === 2000 && n.recipient === 3019) ||
+              //   (n.recipient === 2000 && n.sender === 3019)
+              //     ? 3
+              //     : 0,
+              color: (n) => (n.type === "request" ? "#e6007a" : "#40E0D0"),
               dasharray: (n) => (n.type === "request" ? "10" : "#0"),
               linecap: "butt",
               animate: false,
@@ -629,7 +645,7 @@ export default defineComponent({
             },
             hover: {
               width: 4,
-              color: (n) => (n.type === "request" ? "#ff0000" : "#3355bb"),
+              color: (n) => (n.type === "request" ? "#e6007a" : "#40E0D0"),
               dasharray: "0",
               linecap: "butt",
               animate: false,
@@ -732,7 +748,7 @@ export default defineComponent({
         let asset = [];
         let assetMetadata = [];
 
-        if (paraId === 2000 || paraId === 2001) {
+        if (paraId === 2000 || paraId === 2114 || paraId === 2001) {
           // Acala, Karura, Bifrost
           assetMetadata =
             await api.query.assetRegistry.assetMetadatas.entries();
@@ -746,9 +762,18 @@ export default defineComponent({
                 "https://resources.acala.network/tokens/" + symbol + ".png",
             });
           }
-        } else if (paraId === 2088) {
+        } else if (paraId === 2090) {
           // Basilisk 2090
-          // assetMetadata = await api.query.assetRegistry.assets.entries();
+          assetMetadata =
+            await api.query.assetRegistry.assetMetadataMap.entries();
+
+          asset.push({
+            name: symbol,
+            symbol,
+            decimals,
+            image: "https://resources.acala.network/tokens/" + symbol + ".png",
+          });
+        } else if (paraId === 2088) {
           assetMetadata = await api.query.ormlTokens.totalIssuance.entries();
 
           // console.log("tokens test", assetMetadata);
@@ -870,7 +895,9 @@ export default defineComponent({
               symbol: h.symbol,
               decimals: h.decimals,
               image:
-                "https://resources.acala.network/tokens/" + h.symbol + ".png",
+                "https://resources.acala.network/tokens/" +
+                h.symbol.replace("worm", "") +
+                ".png",
             });
           }
         });
