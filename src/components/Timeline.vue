@@ -29,7 +29,12 @@
           />
           Greg is a team member of
           <a target="_blank" href="https://acala.network/"><b>Acala</b></a> and
-          the Lead Integrator.<br /><br /><i>
+          the Lead Integrator.<br /><br />Tipping
+          <a
+            href="https://polkadot.subscan.io/account/5GL86B8xNiWxiSZHxRNh6nrFcBAYe7TTkDkADjLyLMLsvNh4"
+            >Address</a
+          ><br /><br />
+          <i>
             <b>"</b>
             If you have improvement suggestion, please contact me on Telegram as
             gluneau <b>"</b></i
@@ -95,6 +100,7 @@
           <ul>
             <li>Added Basilisk/HydraDX token list api</li>
             <li>Added Litmus/Litentry token list api</li>
+            <li>Added Tip Address</li>
             <li>Dark Mode, new color scheme</li>
           </ul>
         </div>
