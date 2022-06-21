@@ -94,6 +94,7 @@
         <div>
           <ul>
             <li>Added Basilisk/HydraDX token list api</li>
+            <li>Added Litmus/Litentry token list api</li>
             <li>Dark Mode, new color scheme</li>
           </ul>
         </div>

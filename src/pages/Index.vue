@@ -812,6 +812,17 @@ export default defineComponent({
             });
           });
           console.log("assets", paraId, chain, assets);
+        } else if (paraId === 2106) {
+          // Litmus Litentry
+          assetMetadata =
+            await api.query.assetManager.assetIdMetadata.entries();
+
+          asset.push({
+            name: symbol,
+            symbol,
+            decimals,
+            image: "https://resources.acala.network/tokens/" + symbol + ".png",
+          });
         } else if (paraId === 2107) {
           // Kico, Dico
           assetMetadata = await api.query.currencies.dicoAssetsInfo.entries();
@@ -879,7 +890,7 @@ export default defineComponent({
               image:
                 "https://resources.acala.network/tokens/" + h.name + ".png",
             });
-          } else if (paraId === 2023 || paraId === 2004) {
+          } else if (paraId === 2023 || paraId === 2004 || paraId === 2106) {
             asset.push({
               name: h.name,
               symbol: h.symbol,
