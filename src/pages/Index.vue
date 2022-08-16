@@ -402,6 +402,8 @@ export default defineComponent({
             image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/0/parathreads/${paraId}/assets/logo.svg`;
           } else if (paraId === 3019) {
             image = `https://resources.acala.network/networks/gm.png`;
+          } else if (paraId === 2121) {
+            image = `https://resources.acala.network/networks/imbue.png`;
           } else {
             image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/2/parathreads/${paraId}/assets/logo.svg`;
           }
@@ -773,9 +775,30 @@ export default defineComponent({
             decimals,
             image: "https://resources.acala.network/tokens/" + symbol + ".png",
           });
+        } else if (paraId === 2102) {
+          // Pichiu
+          assetMetadata = await api.query.ormlTokens.totalIssuance.entries();
+
+          asset.push({
+            name: symbol,
+            symbol,
+            decimals,
+            image: "https://resources.acala.network/tokens/" + symbol + ".png",
+          });
+        } else if (paraId === 2110) {
+          // Mangata
+          assetMetadata = await api.query.assetsInfo.assetsInfo.entries();
+
+          // what to do with api.query.assetRegistry.assetLocation.entries();
         } else if (paraId === 2088) {
           assetMetadata = await api.query.ormlTokens.totalIssuance.entries();
 
+          asset.push({
+            name: symbol,
+            symbol,
+            decimals,
+            image: "https://resources.acala.network/tokens/" + symbol + ".png",
+          });
           // console.log("tokens test", assetMetadata);
         } else if (
           (paraId === 2024 && (chain === "Kusama" || chain === "Rococo")) ||
@@ -832,7 +855,6 @@ export default defineComponent({
           paraId === 2006 ||
           paraId === 2007 ||
           paraId === 2012 ||
-          paraId === 2102 ||
           paraId === 2120 ||
           paraId === 2023 ||
           paraId === 2048 ||
@@ -841,17 +863,6 @@ export default defineComponent({
         ) {
           // calimari khala moonriver moonbeam statemine heiko parallel shiden astar
           assetMetadata = await api.query.assets.metadata.entries();
-
-          // has their token in the assets.metadata
-          if (paraId !== 2102) {
-            asset.push({
-              name: symbol,
-              symbol,
-              decimals,
-              image:
-                "https://resources.acala.network/tokens/" + symbol + ".png",
-            });
-          }
         } else {
           asset.push({
             name: symbol,
@@ -865,6 +876,7 @@ export default defineComponent({
         //
 
         assetMetadata.map((a) => {
+          const i = a[0].toHuman()[0];
           const h = a[1].toHuman();
 
           console.log("h", h);
@@ -881,12 +893,18 @@ export default defineComponent({
                 h.metadata.symbol + // .toUpperCase() +
                 ".png",
             });
-          } else if (paraId === 9999) {
-            console.log("assetMetadata", h);
+          } else if (paraId === 2102) {
+            console.log("assetMetadata", a);
+            asset.push({
+              name: i,
+              symbol: i,
+              image: "https://resources.acala.network/tokens/" + i + ".png",
+            });
+          } else if (paraId === 2088) {
+            console.log("assetMetadata", a);
             asset.push({
               name: h.name,
               symbol: h.name,
-              decimals: h.decimal,
               image:
                 "https://resources.acala.network/tokens/" + h.name + ".png",
             });
@@ -937,9 +955,6 @@ export default defineComponent({
         case "Rococo":
           // https://github.com/polkadot-js/apps/blob/master/packages/apps-config/src/endpoints/productionRelayKusama.ts
           this.endpoints = [
-            // (1) all system parachains (none available yet)
-            // ...
-            // (2) all common good parachains
             {
               info: "altair",
               homepage: "https://centrifuge.io/altair",
@@ -949,6 +964,14 @@ export default defineComponent({
                 Centrifuge: "wss://fullnode.altair.centrifuge.io",
                 OnFinality: "wss://altair.api.onfinality.io/public-ws",
               },
+            },
+            {
+              info: "amplitude",
+              homepage: "https://pendulumchain.org/amplitude",
+              paraId: 2124,
+              text: "Amplitude",
+              isUnreachable: true,
+              providers: {}, // Working on making this live ASAP
             },
             {
               info: "bajun",
@@ -974,7 +997,7 @@ export default defineComponent({
               info: "bifrost",
               homepage: "https://ksm.vtoken.io/?ref=polkadotjs",
               paraId: 2001,
-              text: "Bifrost (Kusama)",
+              text: "Bifrost",
               providers: {
                 "Liebi 0": "wss://bifrost-rpc.liebi.com/ws",
                 "Liebi 1": "wss://us.bifrost-rpc.liebi.com/ws",
@@ -1002,7 +1025,6 @@ export default defineComponent({
               providers: {
                 "Manta Network": "wss://ws.calamari.systems/",
                 OnFinality: "wss://calamari.api.onfinality.io/public-ws",
-                Dwellir: "wss://calamari-rpc.dwellir.com",
               },
             },
             {
@@ -1025,12 +1047,11 @@ export default defineComponent({
             },
             {
               info: "dorafactory",
-              isUnreachable: true,
               homepage: "https://dorafactory.org/kusama/",
               paraId: 2115,
               text: "Dora Factory",
               providers: {
-                DORA: "wss://rpc.dorafactory.org",
+                DORA: "wss://kusama.dorafactory.org",
               },
             },
             {
@@ -1044,6 +1065,25 @@ export default defineComponent({
               },
             },
             {
+              info: "gm",
+              isUnreachable: true,
+              homepage: "https://gmordie.com",
+              paraId: 2123,
+              text: "GM Parachain",
+              providers: {
+                GMorDieDAO: "wss://kusama.gmordie.com",
+              },
+            },
+            {
+              info: "imbue",
+              homepage: "https://imbue.network",
+              paraId: 2121,
+              text: "Imbue Network",
+              providers: {
+                "Imbue Network": "wss://imbue-kusama.imbue.network",
+              },
+            },
+            {
               info: "integritee",
               homepage: "https://integritee.network",
               paraId: 2015,
@@ -1052,6 +1092,15 @@ export default defineComponent({
                 Integritee: "wss://kusama.api.integritee.network",
                 OnFinality:
                   "wss://integritee-kusama.api.onfinality.io/public-ws",
+              },
+            },
+            {
+              info: "tinker",
+              homepage: "https://invarch.network/tinkernet",
+              paraId: 2125,
+              text: "InvArch Tinkernet",
+              providers: {
+                "InvArch Team": "wss://tinker.invarch.network",
               },
             },
             {
@@ -1069,6 +1118,11 @@ export default defineComponent({
               paraId: 2000,
               text: "Karura",
               providers: {
+                "Acala Foundation 0": "wss://karura-rpc-0.aca-api.network",
+                "Acala Foundation 1": "wss://karura-rpc-1.aca-api.network",
+                "Acala Foundation 2": "wss://karura-rpc-2.aca-api.network/ws",
+                "Acala Foundation 3": "wss://karura-rpc-3.aca-api.network/ws",
+                "Polkawallet 0": "wss://karura.polkawallet.io",
                 OnFinality: "wss://karura.api.onfinality.io/public-ws",
                 Dwellir: "wss://karura-rpc.dwellir.com",
               },
@@ -1082,6 +1136,7 @@ export default defineComponent({
                 Phala: "wss://khala-api.phala.network/ws",
                 OnFinality: "wss://khala.api.onfinality.io/public-ws",
                 Dwellir: "wss://khala-rpc.dwellir.com",
+                Pinknode: "wss://public-rpc.pinknode.io/khala",
               },
             },
             {
@@ -1177,14 +1232,16 @@ export default defineComponent({
             },
             {
               info: "moonriver",
-              homepage: "https://moonbeam.foundation/moonriver-crowdloan/",
+              homepage: "https://moonbeam.network/networks/moonriver/",
               paraId: 2023,
               text: "Moonriver",
               providers: {
                 "Moonbeam Foundation":
                   "wss://wss.api.moonriver.moonbeam.network",
-                OnFinality: "wss://moonriver.api.onfinality.io/public-ws",
+                Blast: "wss://moonriver.public.blastapi.io",
                 Dwellir: "wss://moonriver-rpc.dwellir.com",
+                OnFinality: "wss://moonriver.api.onfinality.io/public-ws",
+                Pinknode: "wss://public-rpc.pinknode.io/moonriver",
                 // Pinknode: 'wss://rpc.pinknode.io/moonriver/explorer' // https://github.com/polkadot-js/apps/issues/7058
               },
             },
@@ -1196,8 +1253,15 @@ export default defineComponent({
               providers: {
                 OnFinality: "wss://parallel-heiko.api.onfinality.io/public-ws",
                 Parallel: "wss://heiko-rpc.parallel.fi",
-                Dwellir: "wss://heiko-rpc.dwellir.com",
               },
+            },
+            {
+              info: "heiko",
+              homepage: "https://parallel.fi",
+              paraId: 2126,
+              isUnreachable: true,
+              text: "Parallel Heiko 2",
+              providers: {},
             },
             {
               info: "picasso",
@@ -1234,10 +1298,10 @@ export default defineComponent({
               paraId: 2095,
               text: "QUARTZ by UNIQUE",
               providers: {
-                Unique: "wss://quartz.unique.network",
                 OnFinality: "wss://quartz.api.onfinality.io/public-ws",
+                "Unique America": "wss://us-ws-quartz.unique.network",
+                "Unique Asia": "wss://asia-ws-quartz.unique.network",
                 "Unique Europe": "wss://eu-ws-quartz.unique.network",
-                "Unique US": "wss://us-ws-quartz.unique.network",
               },
             },
             {
@@ -1268,7 +1332,7 @@ export default defineComponent({
               providers: {
                 StakeTechnologies: "wss://rpc.shiden.astar.network",
                 OnFinality: "wss://shiden.api.onfinality.io/public-ws",
-                Pinknode: "wss://rpc.pinknode.io/shiden/explorer",
+                Pinknode: "wss://public-rpc.pinknode.io/shiden",
                 Dwellir: "wss://shiden-rpc.dwellir.com",
               },
             },
@@ -1358,6 +1422,8 @@ export default defineComponent({
                 OnFinality: "wss://zeitgeist.api.onfinality.io/public-ws",
               },
             },
+          ];
+          this.endpoints.push(
             {
               info: "statemine",
               paraId: 1000,
@@ -1366,6 +1432,7 @@ export default defineComponent({
                 Parity: "wss://statemine-rpc.polkadot.io",
                 OnFinality: "wss://statemine.api.onfinality.io/public-ws",
                 Dwellir: "wss://statemine-rpc.dwellir.com",
+                Pinknode: "wss://public-rpc.pinknode.io/statemine",
               },
               teleport: [-1],
             },
@@ -1380,8 +1447,6 @@ export default defineComponent({
               },
               teleport: [-1],
             },
-          ];
-          this.endpoints.push(
             {
               info: "efinity",
               homepage: "https://efinity.io",
@@ -1424,6 +1489,11 @@ export default defineComponent({
               paraId: 2000,
               text: "Acala",
               providers: {
+                "Acala Foundation 0": "wss://acala-rpc-0.aca-api.network",
+                "Acala Foundation 1": "wss://acala-rpc-1.aca-api.network",
+                // 'Acala Foundation 2': 'wss://acala-rpc-2.aca-api.network/ws', // https://github.com/polkadot-js/apps/issues/6965
+                "Acala Foundation 3": "wss://acala-rpc-3.aca-api.network/ws",
+                "Polkawallet 0": "wss://acala.polkawallet.io",
                 OnFinality: "wss://acala-polkadot.api.onfinality.io/public-ws",
                 Dwellir: "wss://acala-rpc.dwellir.com",
               },
@@ -1446,16 +1516,16 @@ export default defineComponent({
                 Astar: "wss://rpc.astar.network",
                 OnFinality: "wss://astar.api.onfinality.io/public-ws",
                 Dwellir: "wss://astar-rpc.dwellir.com",
+                Pinknode: "wss://public-rpc.pinknode.io/astar",
               },
             },
             {
               info: "bifrost",
-              isUnreachable: true,
               homepage: "https://crowdloan.bifrost.app",
               paraId: 2030,
               text: "Bifrost",
               providers: {
-                Liebi: "wss://bifrost-dot.liebi.com/ws",
+                Liebi: "wss://hk.p.bifrost-rpc.liebi.com/ws",
               },
             },
             {
@@ -1467,7 +1537,6 @@ export default defineComponent({
                 Centrifuge: "wss://fullnode.parachain.centrifuge.io",
                 OnFinality:
                   "wss://centrifuge-parachain.api.onfinality.io/public-ws",
-                Dwellir: "wss://centrifuge-rpc.dwellir.com",
               },
             },
             {
@@ -1494,7 +1563,6 @@ export default defineComponent({
             },
             {
               info: "composableFinance",
-              isUnreachable: true, // https://github.com/polkadot-js/apps/issues/6721
               homepage: "https://composable.finance/",
               paraId: 2019,
               text: "Composable Finance",
@@ -1515,10 +1583,19 @@ export default defineComponent({
             },
             {
               info: "darwinia",
+              homepage: "https://darwinia.network/",
+              paraId: 2046,
+              text: "Darwinia",
+              providers: {
+                Darwinia: "wss://parachain-rpc.darwinia.network",
+              },
+            },
+            {
+              info: "darwinia",
               isUnreachable: true, // https://github.com/polkadot-js/apps/issues/6530
               homepage: "https://darwinia.network/",
               paraId: 2003,
-              text: "Darwinia",
+              text: "Darwinia Para Backup",
               providers: {
                 Darwinia: "wss://parachain-rpc.darwinia.network",
               },
@@ -1558,6 +1635,16 @@ export default defineComponent({
               text: "HydraDX",
               providers: {
                 "Galactic Council": "wss://rpc-01.hydradx.io",
+                Dwellir: "wss://hydradx-rpc.dwellir.com",
+              },
+            },
+            {
+              info: "integritee",
+              homepage: "https://integritee.network",
+              paraId: 2039,
+              text: "Integritee Shell",
+              providers: {
+                Integritee: "wss://polkadot.api.integritee.network",
               },
             },
             {
@@ -1583,10 +1670,10 @@ export default defineComponent({
               info: "litentry",
               homepage: "https://crowdloan.litentry.com",
               paraId: 2013,
-              isUnreachable: true,
               text: "Litentry",
               providers: {
-                Litentry: "wss://parachain.litentry.io",
+                Litentry: "wss://rpc.litentry-parachain.litentry.io",
+                Dwellir: "wss://litentry-rpc.dwellir.com",
               },
             },
             {
@@ -1608,8 +1695,10 @@ export default defineComponent({
               text: "Moonbeam",
               providers: {
                 "Moonbeam Foundation": "wss://wss.api.moonbeam.network",
-                OnFinality: "wss://moonbeam.api.onfinality.io/public-ws",
+                Blast: "wss://moonbeam.public.blastapi.io",
                 Dwellir: "wss://moonbeam-rpc.dwellir.com",
+                OnFinality: "wss://moonbeam.api.onfinality.io/public-ws",
+                Pinknode: "wss://public-rpc.pinknode.io/moonbeam",
               },
             },
             {
@@ -1620,12 +1709,22 @@ export default defineComponent({
               providers: {
                 OnFinality: "wss://nodle-parachain.api.onfinality.io/public-ws",
                 Dwellir: "wss://eden-rpc.dwellir.com",
+                Pinknode: "wss://public-rpc.pinknode.io/nodle",
+              },
+            },
+            {
+              info: "omnibtc",
+              isUnreachable: true,
+              homepage: "https://www.omnibtc.finance",
+              text: "OmniBTC",
+              paraId: 2053,
+              providers: {
+                OmniBTC: "wss://omnibtc.io/ws",
               },
             },
             {
               info: "origintrail-parachain",
               homepage: "https://parachain.origintrail.io",
-              isUnreachable: true,
               text: "OriginTrail Parachain",
               paraId: 2043,
               providers: {
@@ -1653,12 +1752,13 @@ export default defineComponent({
             },
             {
               info: "polkadex",
+              isUnreachable: true, // https://github.com/polkadot-js/apps/issues/7620
               homepage: "https://polkadex.trade/",
               paraId: 2040,
               text: "Polkadex",
               providers: {
-                "Polkadex Team": "wss://mainnet.polkadex.trade/",
-                OnFinality: "wss://polkadex.api.onfinality.io/public-ws",
+                // 'Polkadex Team': 'wss://mainnet.polkadex.trade/', // https://github.com/polkadot-js/apps/issues/7620
+                // OnFinality: 'wss://polkadex.api.onfinality.io/public-ws' // https://github.com/polkadot-js/apps/issues/7620
               },
             },
             {
@@ -1687,7 +1787,9 @@ export default defineComponent({
               paraId: 2037,
               text: "Unique Network",
               providers: {
-                Unique: "wss://ws.unique.network/",
+                "Unique America": "wss://us-ws.unique.network/",
+                "Unique Asia": "wss://asia-ws.unique.network/",
+                "Unique Europe": "wss://eu-ws.unique.network/",
               },
             },
           ];

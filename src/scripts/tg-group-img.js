@@ -4,17 +4,19 @@ const axios = require("axios");
 const sharp = require("sharp");
 
 const acala = 2000;
-const ateam = 2013;
-const ateamname = "novawallet";
+const ateam = 2027;
+const network = 0; // 2 for Kusama, 0 for Polkadot
+const ateamname = "coinversation";
 
 const acalaSvg = "https://acala.network/static/media/ACA.0fcdc69c.svg";
-const ateamSvg =
-  "https://miro.medium.com/fit/c/96/96/1*2w5d0BCSPjlJn_jjEhBAnw.png";
+// const ateamSvg = "/home/gluneau/Downloads/zeitgeist.svg";
 
-// const ateamSvg =
-//   "https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/0/parathreads/" +
-//   ateam +
-//   "/assets/logo.svg";
+const ateamSvg =
+  "https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/" +
+  network +
+  "/parathreads/" +
+  ateam +
+  "/assets/logo.svg";
 
 const main = async () => {
   const acalaBuffer = (await axios.get(acalaSvg)).data;
@@ -35,14 +37,17 @@ const main = async () => {
     try {
       ateamBuffer = (await axios.get(ateamSvg, { responseType: "arraybuffer" }))
         .data;
+      console.log("got svg");
     } catch (error) {
       console.log("get svg", error);
     }
   }
 
-  if (!ateamBuffer) {
+  if (ateamBuffer) {
+    console.log("convert to png");
     await svg2png(ateamBuffer, { width: 512, height: 512 })
       .then((buffer) => {
+        console.log("got buffer");
         sharp(buffer)
           .extract({ left: 256, top: 0, height: 512, width: 256 })
           .extend({ left: 256, background: { r: 0, g: 0, b: 0, alpha: 0 } })
@@ -51,6 +56,7 @@ const main = async () => {
       })
       .catch((e) => console.error(e));
   } else {
+    console.log("going to extract");
     try {
       sharp(ateamBuffer)
         .extract({ left: 256, top: 0, height: 512, width: 256 })
