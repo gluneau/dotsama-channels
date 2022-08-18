@@ -863,6 +863,13 @@ export default defineComponent({
         ) {
           // calimari khala moonriver moonbeam statemine heiko parallel shiden astar
           assetMetadata = await api.query.assets.metadata.entries();
+
+          asset.push({
+            name: symbol,
+            symbol,
+            decimals,
+            image: "https://resources.acala.network/tokens/" + symbol + ".png",
+          });
         } else {
           asset.push({
             name: symbol,

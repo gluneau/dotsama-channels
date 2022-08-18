@@ -1,6 +1,6 @@
 {
   "name": "channels",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Dotsama HRMP Channel and token App",
   "productName": "Dotsama HRMP Channel and token App",
   "author": "Gregory Luneau <gregory.luneau@gmail.com>",
@@ -21,6 +21,9 @@
     "buffer": "^6.0.3",
     "core-js": "^3.6.5",
     "quasar": "^2.6.6",
+    "rete": "^1.4.9",
+    "rete-connection-plugin": "^0.9.0",
+    "rete-vue-render-plugin": "^1.0.0-rc2",
     "sharp": "^0.30.4",
     "svg2png": "^4.1.1",
     "v-network-graph": "^0.5.0",

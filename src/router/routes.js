@@ -28,6 +28,13 @@ const routes = [
     component: () => import("pages/XToken.vue"),
     // }],
   },
+  {
+    path: "/vcounsil",
+    // component: () => import("layouts/MainLayout.vue"),
+    // children: [{ path: "",
+    component: () => import("pages/VisualCounsil.vue"),
+    // }],
+  },
   // Always leave this as last one,
   // but you can also remove it
   {

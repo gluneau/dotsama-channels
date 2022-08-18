@@ -4,9 +4,9 @@ const axios = require("axios");
 const sharp = require("sharp");
 
 const acala = 2000;
-const ateam = 2027;
-const network = 0; // 2 for Kusama, 0 for Polkadot
-const ateamname = "coinversation";
+const ateam = 2123;
+const network = 2; // 2 for Kusama, 0 for Polkadot
+const ateamname = "gm";
 
 const acalaSvg = "https://acala.network/static/media/ACA.0fcdc69c.svg";
 // const ateamSvg = "/home/gluneau/Downloads/zeitgeist.svg";
