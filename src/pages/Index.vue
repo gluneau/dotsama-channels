@@ -857,6 +857,7 @@ export default defineComponent({
           paraId === 2012 ||
           paraId === 2120 ||
           paraId === 2023 ||
+          paraId === 2035 ||
           paraId === 2048 ||
           paraId === 1000 ||
           paraId === 2085
