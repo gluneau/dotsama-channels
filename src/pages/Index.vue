@@ -996,8 +996,7 @@ export default defineComponent({
               paraId: 2090,
               text: "Basilisk",
               providers: {
-                HydraDX: "wss://rpc-01.basilisk.hydradx.io",
-                OnFinality: "wss://basilisk.api.onfinality.io/public-ws",
+                Basilisk: "wss://rpc.basilisk.cloud",
                 Dwellir: "wss://basilisk-rpc.dwellir.com",
               },
             },
