@@ -1470,7 +1470,6 @@ export default defineComponent({
               paraId: 2006,
               text: "Astar",
               providers: {
-                Astar: "wss://rpc.astar.network",
                 OnFinality: "wss://astar.api.onfinality.io/public-ws",
                 Dwellir: "wss://astar-rpc.dwellir.com",
               },
