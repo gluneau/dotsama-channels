@@ -1126,11 +1126,6 @@ export default defineComponent({
               paraId: 2000,
               text: "Karura",
               providers: {
-                "Acala Foundation 0": "wss://karura-rpc-0.aca-api.network",
-                "Acala Foundation 1": "wss://karura-rpc-1.aca-api.network",
-                "Acala Foundation 2": "wss://karura-rpc-2.aca-api.network/ws",
-                "Acala Foundation 3": "wss://karura-rpc-3.aca-api.network/ws",
-                "Polkawallet 0": "wss://karura.polkawallet.io",
                 OnFinality: "wss://karura.api.onfinality.io/public-ws",
                 Dwellir: "wss://karura-rpc.dwellir.com",
               },
@@ -1496,11 +1491,6 @@ export default defineComponent({
               paraId: 2000,
               text: "Acala",
               providers: {
-                "Acala Foundation 0": "wss://acala-rpc-0.aca-api.network",
-                "Acala Foundation 1": "wss://acala-rpc-1.aca-api.network",
-                // 'Acala Foundation 2': 'wss://acala-rpc-2.aca-api.network/ws', // https://github.com/polkadot-js/apps/issues/6965
-                "Acala Foundation 3": "wss://acala-rpc-3.aca-api.network/ws",
-                "Polkawallet 0": "wss://acala.polkawallet.io",
                 OnFinality: "wss://acala-polkadot.api.onfinality.io/public-ws",
                 Dwellir: "wss://acala-rpc.dwellir.com",
               },
