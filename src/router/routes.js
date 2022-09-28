@@ -15,6 +15,10 @@ const routes = [
     component: () => import("pages/Index.vue"),
   },
   {
+    path: "/:chain/:para/:action",
+    component: () => import("pages/Index.vue"),
+  },
+  {
     path: "/did",
     // component: () => import("layouts/MainLayout.vue"),
     // children: [{ path: "",
@@ -26,6 +30,13 @@ const routes = [
     // component: () => import("layouts/MainLayout.vue"),
     // children: [{ path: "",
     component: () => import("pages/XToken.vue"),
+    // }],
+  },
+  {
+    path: "/gmordie",
+    // component: () => import("layouts/MainLayout.vue"),
+    // children: [{ path: "",
+    component: () => import("pages/GMorDie.vue"),
     // }],
   },
   {

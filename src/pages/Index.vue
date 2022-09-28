@@ -265,7 +265,7 @@ export default defineComponent({
       nodes: {},
       edges: {},
       layers: {},
-      nodeOver: 2000,
+      nodeOver: 0,
       eventHandlers: {
         "node:click": ({ node }) => {
           let paraId = +node.replace("node", "");
@@ -378,8 +378,12 @@ export default defineComponent({
         paraId = +this.$route.params.para;
       }
 
+      this.nodeOver = paraId;
       console.log("paraId", paraId, isNaN(paraId));
-      if (this.endpoints.find((c) => c.paraId === paraId)) {
+      if (
+        this.$route.params.action === "assets" &&
+        this.endpoints.find((c) => c.paraId === paraId)
+      ) {
         this.getCurrencies(this.chain.label, paraId);
       }
     }
@@ -410,10 +414,16 @@ export default defineComponent({
         } else {
           if (chain === "Kusama" && paraId === 2007) {
             paraId = 2120;
+            image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/${
+              chain === "Polkadot" || chain === "Westend" ? 0 : 2
+            }/parathreads/${paraId}/assets/logo.svg`;
+          } else if (chain === "Polkadot" && paraId === 2046) {
+            image = `https://docs.darwinia.network/img/favicon.svg`;
+          } else {
+            image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/${
+              chain === "Polkadot" || chain === "Westend" ? 0 : 2
+            }/parathreads/${paraId}/assets/logo.svg`;
           }
-          image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/${
-            chain === "Polkadot" || chain === "Westend" ? 0 : 2
-          }/parathreads/${paraId}/assets/logo.svg`;
         }
       }
 
@@ -631,23 +641,47 @@ export default defineComponent({
             },
           },
           edge: {
-            selectable: true,
+            selectable: false,
             normal: {
-              width: (n) => (n.sender !== this.nodeOver ? 1 : 3),
+              width: (n) =>
+                n.sender !== this.nodeOver && n.recipient !== this.nodeOver
+                  ? 1
+                  : 3,
               // width: (n) =>
               //   (n.sender === 2000 && n.recipient === 3019) ||
               //   (n.recipient === 2000 && n.sender === 3019)
               //     ? 3
               //     : 0,
-              color: (n) => (n.type === "request" ? "#e6007a" : "#40E0D0"),
-              dasharray: (n) => (n.type === "request" ? "10" : "#0"),
+              color: (n) =>
+                n.type === "request"
+                  ? "#e6007a"
+                  : this.$q.dark.isActive
+                  ? "#40E0D0"
+                  : "#0000ff",
+              dasharray: (n) =>
+                (n.type === "request" &&
+                  n.sender !== this.nodeOver &&
+                  n.recipient !== this.nodeOver) ||
+                (n.type !== "request" && n.sender === this.nodeOver) ||
+                (n.type !== "request" && n.recipient === this.nodeOver)
+                  ? "10"
+                  : "#0",
               linecap: "butt",
-              animate: false,
+              animate: (n) =>
+                (n.sender === this.nodeOver || n.recipient === this.nodeOver) &&
+                n.type !== "request"
+                  ? true
+                  : false,
               animationSpeed: 50,
             },
             hover: {
               width: 4,
-              color: (n) => (n.type === "request" ? "#e6007a" : "#40E0D0"),
+              color: (n) =>
+                n.type === "request"
+                  ? "#e6007a"
+                  : this.$q.dark.isActive
+                  ? "#40E0D0"
+                  : "#0000ff",
               dasharray: "0",
               linecap: "butt",
               animate: false,
@@ -1333,7 +1367,6 @@ export default defineComponent({
               paraId: 2007,
               text: "Shiden",
               providers: {
-                StakeTechnologies: "wss://rpc.shiden.astar.network",
                 OnFinality: "wss://shiden.api.onfinality.io/public-ws",
                 Pinknode: "wss://public-rpc.pinknode.io/shiden",
                 Dwellir: "wss://shiden-rpc.dwellir.com",
@@ -1346,7 +1379,7 @@ export default defineComponent({
               text: "Shiden Crowdloan 2",
               isUnreachable: true,
               providers: {
-                StakeTechnologies: "wss://rpc.shiden.astar.network",
+                OnFinality: "wss://shiden.api.onfinality.io/public-ws",
               },
             },
             {

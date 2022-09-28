@@ -27,7 +27,7 @@
             width="80"
             src="https://raw.githubusercontent.com/gluneau/dotsama-channels/master/public/greg-smile-cropped.png"
           />
-          Greg is a team member of
+          Greg was a team member of
           <a target="_blank" href="https://acala.network/"><b>Acala</b></a> and
           the Lead Integrator.<br /><br />Tipping
           <a
@@ -94,6 +94,23 @@
       </q-timeline-entry>
 
       <q-timeline-entry heading>Updates</q-timeline-entry>
+
+      <q-timeline-entry
+        title="Updates"
+        subtitle="September 27, 2022"
+        side="right"
+      >
+        <div>
+          <ul>
+            <li>
+              URL pattern: /:chain/:para/:action, ex: /polkadot or
+              /polkadot/astar or polkadot/astar/assets
+            </li>
+            <li>Added mouseover animation of edges</li>
+            <li>Added Darwinia's icon</li>
+          </ul>
+        </div>
+      </q-timeline-entry>
 
       <q-timeline-entry title="Updates" subtitle="June 13, 2022" side="left">
         <div>
