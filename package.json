@@ -20,6 +20,7 @@
     "axios": "^0.27.2",
     "buffer": "^6.0.3",
     "core-js": "^3.6.5",
+    "graphql": "^16.6.0",
     "graphql-request": "^5.0.0",
     "quasar": "^2.6.6",
     "rete": "^1.4.9",
