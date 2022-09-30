@@ -315,7 +315,7 @@ export default defineComponent({
         },
         {
           label: "Polkadot",
-          value: "wss://rpc.polkadot.io/public-ws",
+          value: "wss://polkadot.api.onfinality.io/public-ws",
         },
         {
           label: "Westend",

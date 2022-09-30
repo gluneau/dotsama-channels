@@ -34,7 +34,11 @@
 import { defineComponent } from "vue";
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { version } from "../../package.json";
-import { getWallets } from "@talisman-connect/wallets";
+import {
+  web3Accounts,
+  web3Enable,
+  web3FromAddress,
+} from "@polkadot/extension-dapp";
 
 export default defineComponent({
   name: "PageIndex",
@@ -117,8 +121,29 @@ export default defineComponent({
       this.leftDrawerOpen = !this.leftDrawerOpen;
     },
     async load() {
-      const provider = new WsProvider(this.chain.value);
+      // const provider = new WsProvider(this.chain.value);
+      const provider = new WsProvider("wss://kusama.gmordie.com");
       const api = await ApiPromise.create({ provider });
+
+      const DAPP_NAME = "Dotsama HRMP Channel";
+      const allInjected = await web3Enable(DAPP_NAME);
+      console.log("allInjected", allInjected);
+
+      const SENDER = "gMYGS4ehihnGgsieLWv21yTDpWJJaoiZtkcx4q8kgSPAVsbHq";
+
+      // returns an array of { address, meta: { name, source } }
+      // meta.source contains the name of the extension that provides this account
+      const allAccounts = await web3Accounts();
+      console.log("allAccounts", allAccounts);
+
+      const injector = await web3FromAddress(SENDER);
+
+      let hash = await api.tx.currencies
+        .transfer("gMWbcZK8zvwqbtwj5jXxC4yNwwvbXYLC1qrSqAAEm2D74cqhk", "gm", 1)
+        .signAndSend(SENDER, { signer: injector.signer }, (status) => {
+          console.log("status", status);
+        });
+      console.log("Transfer sent with hash", hash);
 
       await api.disconnect();
     },
