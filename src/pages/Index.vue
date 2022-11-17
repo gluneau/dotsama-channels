@@ -21,6 +21,20 @@
         </div>
         <q-toolbar-title> Channels </q-toolbar-title>
         <div>
+          <!-- q-btn
+            v-if="allAccounts.length === 0"
+            label="Connect Wallet"
+            @click="connectWallet"
+          />
+          <div v-else class="q-ml-md">
+            <q-select
+              v-model="account"
+              :option="accountOptions"
+              label="Account"
+              dense
+              dark
+            />
+          </div -->
           <q-toggle
             v-model="mode"
             checked-icon="dark_mode"
@@ -88,6 +102,7 @@
             <q-toolbar>
               <q-avatar>
                 <img :src="image(chain.label, para.paraId)" />
+                <q-tooltip> {{ Object.values(para.providers)[0] }} </q-tooltip>
               </q-avatar>
 
               <q-toolbar-title
@@ -187,6 +202,8 @@
 
     <q-drawer v-model="leftDrawerOpen" overlay side="left" bordered class="">
       <div class="row text-h5 justify-center">HRMP Channel List</div>
+      <astar-button @click="click" />
+      <astar-simple-modal>Test</astar-simple-modal>
       <q-list dense bordered>
         <q-item v-for="item in items" v-bind:key="item.label">
           <q-item-section
@@ -252,6 +269,11 @@ import { equilibrium, equilibriumNext } from "@equilab/definitions";
 import { genshiro } from "@equilab/definitions";
 import Timeline from "components/Timeline.vue";
 import { useQuasar } from "quasar";
+import {
+  web3Accounts,
+  web3Enable,
+  web3FromAddress,
+} from "@polkadot/extension-dapp";
 
 export default defineComponent({
   name: "PageIndex",
@@ -322,6 +344,10 @@ export default defineComponent({
           value: "wss://westend-rpc.polkadot.io/public-ws",
         },
       ],
+      allInjected: [],
+      account: [],
+      accountOptions: [],
+      allAccounts: [],
     };
   },
   computed: {},
@@ -389,6 +415,22 @@ export default defineComponent({
     }
   },
   methods: {
+    async connectWallet() {
+      const DAPP_NAME = "Dotsama HRMP Channel";
+      this.allInjected = await web3Enable(DAPP_NAME);
+      console.log("allInjected", this.allInjected);
+
+      this.allAccounts = await web3Accounts();
+
+      this.allAccounts.map((account) => {
+        this.accountOptions.push({
+          label: account.meta.name,
+          value: account.address,
+        });
+      });
+
+      console.log("accountOptions", this.accountOptions);
+    },
     image(chain, paraId) {
       let image = "";
       let name = this.endpoints.find((c) => c.paraId === paraId)
@@ -1012,8 +1054,9 @@ export default defineComponent({
               homepage: "https://pendulumchain.org/amplitude",
               paraId: 2124,
               text: "Amplitude",
-              isUnreachable: true,
-              providers: {}, // Working on making this live ASAP
+              providers: {
+                PendulumChain: "wss://rpc-amplitude.pendulumchain.tech",
+              },
             },
             {
               info: "bajun",
@@ -1022,16 +1065,17 @@ export default defineComponent({
               text: "Bajun Network",
               providers: {
                 AjunaNetwork: "wss://rpc-parachain.bajun.network",
+                Dwellir: "wss://bajun-rpc.dwellir.com",
+                OnFinality: "wss://bajun.api.onfinality.io/public-ws",
               },
             },
             {
               info: "basilisk",
-              homepage: "https://bsx.fi",
+              homepage: "https://app.basilisk.cloud",
               paraId: 2090,
               text: "Basilisk",
               providers: {
-                HydraDX: "wss://rpc-01.basilisk.hydradx.io",
-                OnFinality: "wss://basilisk.api.onfinality.io/public-ws",
+                Basilisk: "wss://rpc.basilisk.cloud",
                 Dwellir: "wss://basilisk-rpc.dwellir.com",
               },
             },
@@ -1041,9 +1085,7 @@ export default defineComponent({
               paraId: 2001,
               text: "Bifrost",
               providers: {
-                "Liebi 0": "wss://bifrost-rpc.liebi.com/ws",
-                "Liebi 1": "wss://us.bifrost-rpc.liebi.com/ws",
-                "Liebi 2": "wss://eu.bifrost-rpc.liebi.com/ws",
+                Liebi: "wss://bifrost-rpc.liebi.com/ws",
                 OnFinality:
                   "wss://bifrost-parachain.api.onfinality.io/public-ws",
                 Dwellir: "wss://bifrost-rpc.dwellir.com",
@@ -1055,7 +1097,6 @@ export default defineComponent({
               paraId: 2096,
               text: "Bit.Country Pioneer",
               providers: {
-                "Bit.Country": "wss://pioneer-1-rpc.bit.country",
                 OnFinality: "wss://pioneer.api.onfinality.io/public-ws",
               },
             },
@@ -1066,7 +1107,6 @@ export default defineComponent({
               text: "Calamari",
               providers: {
                 "Manta Network": "wss://ws.calamari.systems/",
-                OnFinality: "wss://calamari.api.onfinality.io/public-ws",
               },
             },
             {
@@ -1075,16 +1115,37 @@ export default defineComponent({
               paraId: 2012,
               text: "Crust Shadow",
               providers: {
-                Crust: "wss://rpc-shadow.crust.network/",
+                // Crust: 'wss://rpc-shadow.crust.network/' // https://github.com/polkadot-js/apps/issues/8355
+              },
+            },
+            {
+              info: "shadow",
+              homepage: "https://crust.network/",
+              paraId: 2225,
+              text: "Crust Shadow 2",
+              isUnreachable: true,
+              providers: {
+                // also duplicated right above (hence marked unreachable)
+                // Crust: 'wss://rpc-shadow.crust.network/' // https://github.com/polkadot-js/apps/issues/8355
+              },
+            },
+            {
+              info: "ipci",
+              homepage: "https://ipci.io",
+              paraId: 2222,
+              text: "DAO IPCI",
+              providers: {
+                Airalab: "wss://kusama.rpc.ipci.io",
               },
             },
             {
               info: "crab",
               homepage: "https://crab.network",
               paraId: 2105,
-              text: "Darwinia Crab Parachain",
+              text: "Darwinia Crab",
               providers: {
-                Crab: "wss://crab-parachain-rpc.darwinia.network/",
+                "Darwinia Network":
+                  "wss://crab-parachain-rpc.darwinia.network/",
               },
             },
             {
@@ -1099,7 +1160,7 @@ export default defineComponent({
             {
               info: "genshiro",
               homepage: "https://genshiro.equilibrium.io",
-              isUnreachable: true, // https://github.com/polkadot-js/apps/pull/6761
+              isUnreachable: true,
               paraId: 2024,
               text: "Genshiro",
               providers: {
@@ -1107,13 +1168,28 @@ export default defineComponent({
               },
             },
             {
-              info: "gm",
+              info: "genshiro",
+              homepage: "https://genshiro.equilibrium.io",
               isUnreachable: true,
+              paraId: 2226,
+              text: "Genshiro crowdloan 2",
+              providers: {
+                Equilibrium: "wss://node.genshiro.io",
+              },
+            },
+            {
+              info: "gm",
               homepage: "https://gmordie.com",
               paraId: 2123,
-              text: "GM Parachain",
+              text: "GM",
               providers: {
                 GMorDieDAO: "wss://kusama.gmordie.com",
+                "bLd Nodes": "wss://ws.gm.bldnodes.org",
+                TerraBioDAO: "wss://ws-node-gm.terrabiodao.org",
+                Leemo: "wss://leemo.gmordie.com",
+                "GM Intern": "wss://intern.gmordie.com",
+                // NOTE: Keep this as the last entry, nothing after it
+                "light client": "light://substrate-connect/kusama/gm", // NOTE: Keep last
               },
             },
             {
@@ -1143,6 +1219,10 @@ export default defineComponent({
               text: "InvArch Tinkernet",
               providers: {
                 "InvArch Team": "wss://tinker.invarch.network",
+                OnFinality:
+                  "wss://invarch-tinkernet.api.onfinality.io/public-ws",
+                // NOTE: Keep this as the last entry, nothing after it
+                "light client": "light://substrate-connect/kusama/tinkernet", // NOTE: Keep last
               },
             },
             {
@@ -1151,7 +1231,7 @@ export default defineComponent({
               paraId: 2113,
               text: "Kabocha",
               providers: {
-                JelliedOwl: "wss://kabocha.jelliedowl.com",
+                JelliedOwl: "wss://kabocha.jelliedowl.net",
               },
             },
             {
@@ -1183,18 +1263,7 @@ export default defineComponent({
               text: "KICO",
               providers: {
                 "DICO Foundation": "wss://rpc.kico.dico.io",
-                "DICO Foundation 2": "wss://rpc.api.kico.dico.io",
-              },
-            },
-            {
-              info: "kilt",
-              homepage: "https://www.kilt.io/",
-              paraId: 2086,
-              text: "KILT Spiritnet",
-              providers: {
-                "KILT Protocol": "wss://spiritnet.kilt.io/",
-                OnFinality: "wss://spiritnet.api.onfinality.io/public-ws",
-                Dwellir: "wss://kilt-rpc.dwellir.com",
+                // 'DICO Foundation 2': 'wss://rpc.api.kico.dico.io' // https://github.com/polkadot-js/apps/issues/8203
               },
             },
             {
@@ -1205,7 +1274,6 @@ export default defineComponent({
               providers: {
                 "Kintsugi Labs": "wss://api-kusama.interlay.io/parachain",
                 OnFinality: "wss://kintsugi.api.onfinality.io/public-ws",
-                Dwellir: "wss://kintsugi-rpc.dwellir.com",
               },
             },
             {
@@ -1276,9 +1344,9 @@ export default defineComponent({
                 "Moonbeam Foundation":
                   "wss://wss.api.moonriver.moonbeam.network",
                 Blast: "wss://moonriver.public.blastapi.io",
-                Dwellir: "wss://moonriver-rpc.dwellir.com",
                 OnFinality: "wss://moonriver.api.onfinality.io/public-ws",
                 Pinknode: "wss://public-rpc.pinknode.io/moonriver",
+                Dwellir: "wss://moonriver-rpc.dwellir.com",
                 // Pinknode: 'wss://rpc.pinknode.io/moonriver/explorer' // https://github.com/polkadot-js/apps/issues/7058
               },
             },
@@ -1288,7 +1356,7 @@ export default defineComponent({
               paraId: 2085,
               text: "Parallel Heiko",
               providers: {
-                OnFinality: "wss://parallel-heiko.api.onfinality.io/public-ws",
+                // OnFinality: 'wss://parallel-heiko.api.onfinality.io/public-ws', // https://github.com/polkadot-js/apps/issues/8355
                 Parallel: "wss://heiko-rpc.parallel.fi",
               },
             },
@@ -1307,7 +1375,6 @@ export default defineComponent({
               text: "Picasso",
               providers: {
                 Composable: "wss://picasso-rpc.composable.finance",
-                Dwellir: "wss://picasso-rpc.dwellir.com",
               },
             },
             {
@@ -1317,6 +1384,7 @@ export default defineComponent({
               text: "Pichiu",
               providers: {
                 "Kylin Network": "wss://kusama.kylin-node.co.uk",
+                OnFinality: "wss://pichiu.api.onfinality.io/public-ws",
               },
             },
             {
@@ -1335,7 +1403,6 @@ export default defineComponent({
               paraId: 2095,
               text: "QUARTZ by UNIQUE",
               providers: {
-                OnFinality: "wss://quartz.api.onfinality.io/public-ws",
                 "Unique America": "wss://us-ws-quartz.unique.network",
                 "Unique Asia": "wss://asia-ws-quartz.unique.network",
                 "Unique Europe": "wss://eu-ws-quartz.unique.network",
@@ -1349,6 +1416,8 @@ export default defineComponent({
               providers: {
                 Airalab: "wss://kusama.rpc.robonomics.network/",
                 OnFinality: "wss://robonomics.api.onfinality.io/public-ws",
+                Samsara: "wss://robonomics.0xsamsara.com",
+                Leemo: "wss://robonomics.leemo.me",
               },
             },
             {
@@ -1367,9 +1436,13 @@ export default defineComponent({
               paraId: 2007,
               text: "Shiden",
               providers: {
+                StakeTechnologies: "wss://rpc.shiden.astar.network",
+                Blast: "wss://shiden.public.blastapi.io",
+                Dwellir: "wss://shiden-rpc.dwellir.com",
                 OnFinality: "wss://shiden.api.onfinality.io/public-ws",
                 Pinknode: "wss://public-rpc.pinknode.io/shiden",
-                Dwellir: "wss://shiden-rpc.dwellir.com",
+                // NOTE: Keep this as the last entry, nothing after it
+                "light client": "light://substrate-connect/kusama/shiden", // NOTE: Keep last
               },
             },
             {
@@ -1379,14 +1452,24 @@ export default defineComponent({
               text: "Shiden Crowdloan 2",
               isUnreachable: true,
               providers: {
-                OnFinality: "wss://shiden.api.onfinality.io/public-ws",
+                StakeTechnologies: "wss://rpc.shiden.astar.network",
+              },
+            },
+            {
+              info: "snow",
+              homepage: "https://icenetwork.io/snow",
+              paraId: 2129,
+              text: "SNOW Network",
+              isUnreachable: false,
+              providers: {
+                IceNetwork: "wss://snow-rpc.icenetwork.io",
               },
             },
             {
               info: "sora_ksm",
               homepage: "https://sora.org/",
               paraId: 2011,
-              text: "SORA Kusama Parachain",
+              text: "SORA",
               providers: {
                 Soramitsu:
                   "wss://ws.parachain-collator-1.c1.sora2.soramitsu.co.jp",
@@ -1394,6 +1477,7 @@ export default defineComponent({
             },
             {
               info: "subgame",
+              isUnreachable: true, // https://github.com/polkadot-js/apps/issues/7982
               homepage: "http://subgame.org/",
               paraId: 2018,
               text: "SubGame Gamma",
@@ -1434,7 +1518,6 @@ export default defineComponent({
               text: "Turing Network",
               providers: {
                 OAK: "wss://rpc.turing.oak.tech",
-                OnFinality: "wss://turing.api.onfinality.io/public-ws",
                 Dwellir: "wss://turing-rpc.dwellir.com",
               },
             },
@@ -1453,7 +1536,7 @@ export default defineComponent({
               paraId: 2101,
               text: "Zeitgeist",
               providers: {
-                ZeitgeistPM: "wss://rpc-0.zeitgeist.pm",
+                // ZeitgeistPM: 'wss://rpc-0.zeitgeist.pm', // https://github.com/polkadot-js/apps/issues/7982
                 Dwellir: "wss://zeitgeist-rpc.dwellir.com",
                 OnFinality: "wss://zeitgeist.api.onfinality.io/public-ws",
               },
@@ -1526,6 +1609,16 @@ export default defineComponent({
               providers: {
                 OnFinality: "wss://acala-polkadot.api.onfinality.io/public-ws",
                 Dwellir: "wss://acala-rpc.dwellir.com",
+                "Automata 1RPC": "wss://1rpc.io/aca",
+              },
+            },
+            {
+              info: "ajuna",
+              homepage: "https://ajuna.io",
+              paraId: 2051,
+              text: "Ajuna Network",
+              providers: {
+                // AjunaNetwork: 'wss://rpc-parachain.ajuna.network' // https://github.com/polkadot-js/apps/issues/8039
               },
             },
             {
@@ -1543,10 +1636,22 @@ export default defineComponent({
               paraId: 2006,
               text: "Astar",
               providers: {
-                OnFinality: "wss://astar.api.onfinality.io/public-ws",
+                Astar: "wss://rpc.astar.network",
+                Blast: "wss://astar.public.blastapi.io",
                 Dwellir: "wss://astar-rpc.dwellir.com",
+                OnFinality: "wss://astar.api.onfinality.io/public-ws",
                 Pinknode: "wss://public-rpc.pinknode.io/astar",
+                "Automata 1RPC": "wss://1rpc.io/astr",
+                // NOTE: Keep this as the last entry, nothing after it
+                "light client": "light://substrate-connect/polkadot/astar", // NOTE: Keep last
               },
+            },
+            {
+              info: "aventus",
+              homepage: "https://www.aventus.io/",
+              paraId: 2056,
+              text: "Aventus",
+              providers: {},
             },
             {
               info: "bifrost",
@@ -1555,6 +1660,16 @@ export default defineComponent({
               text: "Bifrost",
               providers: {
                 Liebi: "wss://hk.p.bifrost-rpc.liebi.com/ws",
+              },
+            },
+            {
+              info: "bitgreen",
+              isUnreachable: true,
+              homepage: "https://www.bitgreenswiss.org/crowdloan.html",
+              text: "Bitgreen",
+              paraId: 2048,
+              providers: {
+                Bitgreen: "wss://bitgreen.org/ws",
               },
             },
             {
@@ -1575,19 +1690,19 @@ export default defineComponent({
               text: "Clover",
               providers: {
                 Clover: "wss://rpc-para.clover.finance",
-                OnFinality: "wss://clover.api.onfinality.io/public-ws",
+                // OnFinality: 'wss://clover.api.onfinality.io/public-ws' // https://github.com/polkadot-js/apps/issues/8355
               },
             },
             {
+              info: "coinversation",
               // this is also a duplicate as a Live and Testing network -
               // it is either/or, not and
-              info: "coinversation",
-              isUnreachable: true, // https://github.com/polkadot-js/apps/issues/6635
+              isUnreachable: true,
               homepage: "http://www.coinversation.io/",
               paraId: 2027,
               text: "Coinversation",
               providers: {
-                Coinversation: "wss://rpc.coinversation.io/",
+                // Coinversation: 'wss://rpc.coinversation.io/' // https://github.com/polkadot-js/apps/issues/6635
               },
             },
             {
@@ -1597,7 +1712,6 @@ export default defineComponent({
               text: "Composable Finance",
               providers: {
                 Composable: "wss://rpc.composable.finance",
-                Dwellir: "wss://composable-rpc.dwellir.com",
               },
             },
             {
@@ -1616,17 +1730,16 @@ export default defineComponent({
               paraId: 2046,
               text: "Darwinia",
               providers: {
-                Darwinia: "wss://parachain-rpc.darwinia.network",
+                "Darwinia Network": "wss://parachain-rpc.darwinia.network",
               },
             },
             {
               info: "darwinia",
-              isUnreachable: true, // https://github.com/polkadot-js/apps/issues/6530
               homepage: "https://darwinia.network/",
               paraId: 2003,
-              text: "Darwinia Para Backup",
+              text: "Darwinia Backup",
               providers: {
-                Darwinia: "wss://parachain-rpc.darwinia.network",
+                // 'Darwinia Network': 'wss://parachain-rpc.darwinia.network' // https://github.com/polkadot-js/apps/issues/6530
               },
             },
             {
@@ -1636,6 +1749,8 @@ export default defineComponent({
               text: "Efinity",
               providers: {
                 Efinity: "wss://rpc.efinity.io",
+                Dwellir: "wss://efinity-rpc.dwellir.com",
+                OnFinality: "wss://efinity.api.onfinality.io/public-ws",
               },
             },
             {
@@ -1645,6 +1760,7 @@ export default defineComponent({
               text: "Equilibrium",
               providers: {
                 Equilibrium: "wss://node.pol.equilibrium.io/",
+                Dwellir: "wss://equilibrium-rpc.dwellir.com",
               },
             },
             {
@@ -1663,7 +1779,7 @@ export default defineComponent({
               paraId: 2034,
               text: "HydraDX",
               providers: {
-                "Galactic Council": "wss://rpc-01.hydradx.io",
+                "Galactic Council": "wss://rpc.hydradx.cloud",
                 Dwellir: "wss://hydradx-rpc.dwellir.com",
               },
             },
@@ -1696,6 +1812,26 @@ export default defineComponent({
               },
             },
             {
+              info: "kilt",
+              homepage: "https://www.kilt.io/",
+              paraId: 2086,
+              text: "KILT Spiritnet",
+              providers: {
+                "KILT Protocol": "wss://spiritnet.kilt.io/",
+                OnFinality: "wss://spiritnet.api.onfinality.io/public-ws",
+                Dwellir: "wss://kilt-rpc.dwellir.com",
+              },
+            },
+            {
+              info: "kylin",
+              homepage: "https://kylin.network/",
+              paraId: 2052,
+              text: "Kylin",
+              providers: {
+                "Kylin Network": "wss://polkadot.kylin-node.co.uk",
+              },
+            },
+            {
               info: "litentry",
               homepage: "https://crowdloan.litentry.com",
               paraId: 2013,
@@ -1725,9 +1861,10 @@ export default defineComponent({
               providers: {
                 "Moonbeam Foundation": "wss://wss.api.moonbeam.network",
                 Blast: "wss://moonbeam.public.blastapi.io",
-                Dwellir: "wss://moonbeam-rpc.dwellir.com",
                 OnFinality: "wss://moonbeam.api.onfinality.io/public-ws",
                 Pinknode: "wss://public-rpc.pinknode.io/moonbeam",
+                "Automata 1RPC": "wss://1rpc.io/glmr",
+                Dwellir: "wss://moonbeam-rpc.dwellir.com",
               },
             },
             {
@@ -1739,6 +1876,16 @@ export default defineComponent({
                 OnFinality: "wss://nodle-parachain.api.onfinality.io/public-ws",
                 Dwellir: "wss://eden-rpc.dwellir.com",
                 Pinknode: "wss://public-rpc.pinknode.io/nodle",
+              },
+            },
+            {
+              info: "oak",
+              homepage: "https://oak.tech",
+              isUnreachable: true,
+              paraId: 2090,
+              text: "OAK Network",
+              providers: {
+                OAK: "wss://rpc.oak.tech",
               },
             },
             {
@@ -1754,7 +1901,7 @@ export default defineComponent({
             {
               info: "origintrail-parachain",
               homepage: "https://parachain.origintrail.io",
-              text: "OriginTrail Parachain",
+              text: "OriginTrail",
               paraId: 2043,
               providers: {
                 TraceLabs: "wss://parachain-rpc.origin-trail.network",
@@ -1766,7 +1913,7 @@ export default defineComponent({
               paraId: 2012,
               text: "Parallel",
               providers: {
-                OnFinality: "wss://parallel.api.onfinality.io/public-ws",
+                // OnFinality: 'wss://parallel.api.onfinality.io/public-ws' // https://github.com/polkadot-js/apps/issues/8355
                 Parallel: "wss://rpc.parallel.fi",
               },
             },
@@ -1777,6 +1924,7 @@ export default defineComponent({
               text: "Phala Network",
               providers: {
                 Phala: "wss://api.phala.network/ws",
+                OnFinality: "wss://phala.api.onfinality.io/public-ws",
               },
             },
             {
@@ -1803,11 +1951,10 @@ export default defineComponent({
             {
               info: "subgame",
               homepage: "http://subgame.org/",
-              isUnreachable: true, // https://github.com/polkadot-js/apps/pull/6761
               paraId: 2017,
               text: "SubGame Gamma",
               providers: {
-                SubGame: "wss://gamma.subgame.org/",
+                // SubGame: 'wss://gamma.subgame.org/' // https://github.com/polkadot-js/apps/pull/6761
               },
             },
             {
@@ -1839,18 +1986,31 @@ export default defineComponent({
       // https://github.com/polkadot-js/apps/blob/master/packages/apps-config/src/endpoints/testingRelayRococo.ts
       this.rocEndpoints = [
         {
-          info: "arctic",
-          isUnreachable: true, // https://github.com/polkadot-js/apps/issues/7420
-          paraId: 3025,
-          text: "Arctic",
+          info: "rococoAmplitude",
+          paraId: 2124,
+          text: "Amplitude",
           providers: {
-            Arctic: "wss://arctic-rpc-parachain.icenetwork.io:9944",
+            PendulumChain: "wss://pencol-roc-00.pendulumchain.tech",
           },
         },
         {
+          info: "arctic",
+          paraId: 3015,
+          text: "Arctic",
+          providers: {
+            Arctic: "wss://arctic-rococo-rpc.icenetwork.io",
+          },
+        },
+        {
+          info: "rococoAventus",
+          homepage: "https://www.aventus.io/",
+          paraId: 2056,
+          text: "Aventus",
+          providers: {},
+        },
+        {
           info: "rococoBajun",
-          isUnreachable: true, // https://github.com/polkadot-js/apps/issues/7593
-          paraId: 3026,
+          paraId: 2119,
           text: "Bajun Network",
           providers: {
             AjunaNetwork: "wss://rpc-rococo.bajun.network",
@@ -1861,7 +2021,15 @@ export default defineComponent({
           paraId: 2090,
           text: "Basilisk",
           providers: {
-            "Galactic Council": "wss://rpc-01.basilisk-rococo.hydradx.io",
+            "Galactic Council": "wss://rococo-basilisk-rpc.hydration.dev",
+          },
+        },
+        {
+          info: "rococoBifrost",
+          paraId: 2030,
+          text: "Bifrost",
+          providers: {
+            Liebi: "wss://bifrost-rpc.rococo.liebi.com/ws",
           },
         },
         {
@@ -1869,7 +2037,7 @@ export default defineComponent({
           paraId: 3024,
           text: "Bitgreen",
           providers: {
-            Bitgreen: "wss://rococobitgreen.abhath-labs.com",
+            Bitgreen: "wss://testnet.bitgreen.org",
           },
         },
         {
@@ -1878,6 +2046,22 @@ export default defineComponent({
           text: "Catalyst",
           providers: {
             Centrifuge: "wss://fullnode.catalyst.cntrfg.com",
+          },
+        },
+        {
+          info: "rococoConfti",
+          paraId: 4094,
+          text: "Confti",
+          providers: {
+            // Confti: 'wss://ws.confti.club' // https://github.com/polkadot-js/apps/issues/8036
+          },
+        },
+        {
+          info: "rococoCrust",
+          paraId: 2012,
+          text: "Crust Testnet",
+          providers: {
+            Crust: "wss://rococo-csm.crustcode.com/",
           },
         },
         {
@@ -1893,37 +2077,53 @@ export default defineComponent({
           paraId: 2084,
           text: "Dolphin",
           providers: {
-            "Manta Network": "wss://anjie.rococo.dolphin.engineering",
+            "Manta Network": "wss://ws.rococo.dolphin.engineering",
           },
         },
         {
-          info: "rocfinity",
-          paraId: 2051,
-          text: "Efinity",
+          info: "Eggnet",
+          paraId: 4006,
+          text: "Eggnet",
           providers: {
-            Efinity: "wss://rpc.rococo.efinity.io",
+            // Webb: 'wss://rococo1.webb.tools' // https://github.com/polkadot-js/apps/issues/8175
+          },
+        },
+        {
+          info: "rococoFrequency",
+          paraId: 4044,
+          text: "Frequency",
+          providers: {
+            // Frequency: 'wss://collator1.frequency.xyz' // https://github.com/polkadot-js/apps/issues/8355
           },
         },
         {
           info: "rococoGenshiro",
           paraId: 2024,
-          text: "Genshiro Rococo Testnet",
+          text: "Genshiro Testnet",
           providers: {
             Equilibrium:
               "wss://parachain-testnet.equilab.io/rococo/collator/node1/wss",
           },
         },
         {
-          info: "rococoGM",
-          paraId: 3019,
-          text: "GM Parachain",
+          info: "helixstreet",
+          paraId: 3025,
+          text: "Helixstreet",
           providers: {
-            "GM or Die DAO": "wss://rococo.gmordie.com",
+            Helixstreet: "wss://rpc-rococo.helixstreet.io",
+          },
+        },
+        {
+          info: "rococoHydraDX",
+          paraId: 2034,
+          text: "HydraDX",
+          providers: {
+            "Galactic Council": "wss://rococo-hydradx-rpc.hydration.dev",
           },
         },
         {
           info: "rococoImbue",
-          paraId: 3017,
+          paraId: 2121,
           text: "Imbue Network",
           providers: {
             "Imbue Network": "wss://rococo.imbue.network",
@@ -1938,6 +2138,14 @@ export default defineComponent({
           },
         },
         {
+          info: "rococoKabocha",
+          paraId: 2113,
+          text: "Kabocha (kabsoup)",
+          providers: {
+            JelliedOwl: "wss://kabsoup1.jelliedowl.com",
+          },
+        },
+        {
           info: "rococoLitentry",
           paraId: 2106,
           text: "Litentry",
@@ -1946,12 +2154,27 @@ export default defineComponent({
           },
         },
         {
+          info: "rococoMangata",
+          paraId: 2110,
+          text: "Mangata",
+          providers: {
+            Mangata: "wss://roccoco-testnet-collator-01.mangatafinance.cloud",
+          },
+        },
+        {
+          info: "rococoMd5",
+          paraId: 2089,
+          text: "MD5 Network",
+          providers: {
+            "Hashed Systems": "wss://c1.md5.network",
+          },
+        },
+        {
           info: "rococoMoonsama",
-          isDisabled: true, // https://github.com/polkadot-js/apps/issues/7526
           paraId: 2055,
           text: "Moonsama",
           providers: {
-            Moonsama: "wss://moonsama-testnet-rpc.moonsama.com",
+            // Moonsama: 'wss://moonsama-testnet-rpc.moonsama.com' // https://github.com/polkadot-js/apps/issues/7526
           },
         },
         {
@@ -1959,31 +2182,36 @@ export default defineComponent({
           paraId: 2026,
           text: "Nodle",
           providers: {
-            OnFinality:
-              "wss://node-6913072722034561024.lh.onfinality.io/ws?apikey=84d77e2e-3793-4785-8908-5096cffea77a",
+            OnFinality: "wss://nodle-paradis.api.onfinality.io/public-ws",
           },
+        },
+        {
+          info: "chainoli",
+          homepage: "https://www.my-oli.com/en/",
+          paraId: 4023,
+          text: "OLI",
+          providers: {},
         },
         {
           info: "rococoOriginTrailParachain",
           homepage: "https://parachain.origintrail.io",
-          paraId: 3005,
-          text: "OriginTrail Parachain Testnet",
+          paraId: 2043,
+          text: "OriginTrail Testnet",
           providers: {
-            TraceLabs:
-              "wss://parachain-testnet-loadbalancer.origin-trail.network/",
+            TraceLabs: "wss://parachain-testnet-rpc.origin-trail.network/",
           },
         },
         {
           info: "rococoPangolin",
           paraId: 2105,
-          text: "Pangolin Parachain",
+          text: "Pangolin",
           providers: {
             "Darwinia Network": "wss://pangolin-parachain-rpc.darwinia.network",
           },
         },
         {
           info: "rococoKilt",
-          paraId: 2015,
+          paraId: 2086,
           text: "RILT",
           providers: {
             "KILT Protocol": "wss://rococo.kilt.io",
@@ -1996,6 +2224,14 @@ export default defineComponent({
           text: "Robonomics",
           providers: {
             Airalab: "wss://rococo.rpc.robonomics.network",
+          },
+        },
+        {
+          info: "rocfinity",
+          paraId: 2021,
+          text: "Rocfinity",
+          providers: {
+            Efinity: "wss://rpc.rococo.efinity.io",
           },
         },
         {
@@ -2015,11 +2251,37 @@ export default defineComponent({
           },
         },
         {
+          info: "rococoSora",
+          paraId: 2011,
+          text: "SORA",
+          providers: {
+            Soramitsu:
+              "wss://ws.parachain-collator-1.c1.stg1.sora2.soramitsu.co.jp",
+          },
+        },
+        {
           info: "rococoSpreehafen",
           paraId: 2116,
           text: "Spreehafen",
           providers: {
             DataHighway: "wss://spreehafen.datahighway.com",
+          },
+        },
+        {
+          info: "stagex",
+          homepage: "https://totemaccounting.com/",
+          paraId: 2007,
+          text: "Stagex",
+          providers: {
+            Totem: "wss://s-ui.kapex.network",
+          },
+        },
+        {
+          info: "rococoSubzero",
+          paraId: 4040,
+          text: "Subzero",
+          providers: {
+            ZERO: "wss://staging.para.sub.zero.io",
           },
         },
         {
@@ -2031,6 +2293,14 @@ export default defineComponent({
           },
         },
         {
+          info: "rococoTinkernet",
+          paraId: 2125,
+          text: "Tinkernet",
+          providers: {
+            // 'InvArch Team': 'wss://rococo.invarch.network' // https://github.com/polkadot-js/apps/issues/8266
+          },
+        },
+        {
           info: "rococoTuring",
           paraId: 2114,
           text: "Turing Network (Staging)",
@@ -2039,20 +2309,35 @@ export default defineComponent({
           },
         },
         {
+          info: "rococoUnitNetwork",
+          paraId: 4168,
+          text: "Unit Network",
+          providers: {
+            UnitNetwork: "wss://www.unitnode3.info:443",
+          },
+        },
+        {
           info: "rococoVirto",
           paraId: 3003,
           text: "Virto",
           providers: {
-            VirtoNetwork: "wss://rococo.virtonetwork.xyz",
+            // VirtoNetwork: 'wss://rococo.virtonetwork.xyz' // https://github.com/polkadot-js/apps/issues/8024
+          },
+        },
+        {
+          info: "rococoWatr",
+          paraId: 2058,
+          text: "Watr Network",
+          providers: {
+            Watr: "wss://rpc.dev.watr.org",
           },
         },
         {
           info: "rococoZeitgeist",
-          isDisabled: true, // See https://github.com/polkadot-js/apps/issues/5842
-          paraId: 2050,
-          text: "Zeitgeist PC",
+          paraId: 2101,
+          text: "Zeitgeist Battery Station",
           providers: {
-            Zeitggeist: "wss://roc.zeitgeist.pm",
+            Zeitgeist: "wss://roc.zeitgeist.pm",
           },
         },
         {
@@ -2083,6 +2368,15 @@ export default defineComponent({
           },
           teleport: [-1],
         },
+        {
+          info: "rococoBridgehub",
+          paraId: 1013,
+          text: "Bridgehub",
+          providers: {
+            Parity: "wss://rococo-bridge-hub-rpc.polkadot.io",
+          },
+          teleport: [-1],
+        },
       ];
       this.rocEndpoints.push(
         {
@@ -2095,6 +2389,14 @@ export default defineComponent({
           paraId: 2102,
           providers: {
             Pichiu: "wss://pichiu-rococo-01.onebitdev.com",
+          },
+        },
+        {
+          info: "rocstar",
+          paraId: 2006,
+          text: "RocStar",
+          providers: {
+            Astar: "wss://rocstar.astar.network",
           },
         }
       );

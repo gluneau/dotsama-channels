@@ -27,9 +27,9 @@
             width="80"
             src="https://raw.githubusercontent.com/gluneau/dotsama-channels/master/public/greg-smile-cropped.png"
           />
-          Greg was a team member of
-          <a target="_blank" href="https://acala.network/"><b>Acala</b></a> and
-          the Lead Integrator.<br /><br />Tipping
+          Greg is a team member of
+          <a target="_blank" href="https://astar.network/"><b>Astar</b></a> and
+          the Senior Integrator Developer.<br /><br />Tipping
           <a
             href="https://polkadot.subscan.io/account/5GL86B8xNiWxiSZHxRNh6nrFcBAYe7TTkDkADjLyLMLsvNh4"
             >Address</a
@@ -37,7 +37,7 @@
           <i>
             <b>"</b>
             If you have improvement suggestion, please contact me on Telegram as
-            gluneau <b>"</b></i
+            @gluneau <b>"</b></i
           ><br /><br />
         </div>
       </q-timeline-entry>
