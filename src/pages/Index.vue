@@ -448,8 +448,6 @@ export default defineComponent({
             image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/0/parathreads/${paraId}/assets/logo.svg`;
           } else if (paraId === 3019) {
             image = `https://resources.acala.network/networks/gm.png`;
-          } else if (paraId === 2121) {
-            image = `https://resources.acala.network/networks/imbue.png`;
           } else {
             image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/2/parathreads/${paraId}/assets/logo.svg`;
           }
