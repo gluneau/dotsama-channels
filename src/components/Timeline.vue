@@ -19,7 +19,7 @@
       <q-timeline-entry
         title="Author"
         subtitle="Gregory Luneau"
-        side="right"
+        side="left"
         icon="account_circle"
       >
         <div>
@@ -39,27 +39,6 @@
             If you have improvement suggestion, please contact me on Telegram as
             @gluneau <b>"</b></i
           ><br /><br />
-        </div>
-      </q-timeline-entry>
-
-      <q-timeline-entry
-        title="Predictive Parachain Icon Set"
-        subtitle="Talisman"
-        icon="wallet"
-        side="left"
-      >
-        <div>
-          <img
-            width="80"
-            src="https://github.com/TalismanSociety/talisman-web/blob/prod/public/logo512.png?raw=true"
-          />
-          <a target="_blank" href="https://talisman.xyz/"><b>Talisman</b></a> is
-          a web3 wallet that unlocks a universe of applications in Polkadot and
-          Kusama, an alternative to Polkadot.js <br /><br /><i>
-            <b>"</b>It was easy for me to use their bank of Parachain icons as
-            they have it all in a predictable uri that I can use to identify
-            visually each parachain on the network graph.<b>"</b></i
-          >
         </div>
       </q-timeline-entry>
 
@@ -87,7 +66,7 @@
           if you see a missing icon,
           <a
             target="_blank"
-            href="https://github.com/AcalaNetwork/token-resources"
+            href="https://github.com/open-web3-stack/token-resources"
             >make a PR!</a
           >
         </div>

@@ -443,28 +443,10 @@ export default defineComponent({
       if (Number.isInteger(name)) {
         image = `https://cdn.pixabay.com/photo/2015/08/27/10/14/icon-909830_1280.png`;
       } else {
-        if (chain === "Rococo") {
-          if (paraId === 2021 || paraId === 2006) {
-            image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/0/parathreads/${paraId}/assets/logo.svg`;
-          } else if (paraId === 3019) {
-            image = `https://resources.acala.network/networks/gm.png`;
-          } else {
-            image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/2/parathreads/${paraId}/assets/logo.svg`;
-          }
-        } else {
-          if (chain === "Kusama" && paraId === 2007) {
-            paraId = 2120;
-            image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/${
-              chain === "Polkadot" || chain === "Westend" ? 0 : 2
-            }/parathreads/${paraId}/assets/logo.svg`;
-          } else if (chain === "Polkadot" && paraId === 2046) {
-            image = `https://docs.darwinia.network/img/favicon.svg`;
-          } else {
-            image = `https://raw.githubusercontent.com/TalismanSociety/chaindata/multi-relay-chain-future/${
-              chain === "Polkadot" || chain === "Westend" ? 0 : 2
-            }/parathreads/${paraId}/assets/logo.svg`;
-          }
-        }
+        image =
+          "https://resources.acala.network/networks/" +
+          this.endpoints.find((c) => c.paraId === paraId).info.toLowerCase() +
+          ".png";
       }
 
       return image;
