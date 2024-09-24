@@ -33,13 +33,6 @@ const routes = [
     // }],
   },
   {
-    path: "/gmordie",
-    // component: () => import("layouts/MainLayout.vue"),
-    // children: [{ path: "",
-    component: () => import("pages/GMorDie.vue"),
-    // }],
-  },
-  {
     path: "/vcounsil",
     // component: () => import("layouts/MainLayout.vue"),
     // children: [{ path: "",
