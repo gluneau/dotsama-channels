@@ -1,11 +1,13 @@
 {
   "name": "channels",
-  "version": "1.1.16",
+  "version": "1.1.17",
   "description": "Dotsama HRMP Channel and token App",
   "productName": "Dotsama HRMP Channel and token App",
   "author": "Gregory Luneau <gregory.luneau@gmail.com>",
   "private": true,
+  "license": "MIT",
   "scripts": {
+    "dev": "quasar dev",
     "build": "quasar build",
     "deploy": "vercel",
     "lint": "eslint --ext .js,.vue ./",
@@ -59,6 +61,5 @@
     "node": ">= 12.22.1",
     "npm": ">= 6.13.4",
     "yarn": ">= 1.21.1"
-  },
-  "license": "MIT"
+  }
 }
