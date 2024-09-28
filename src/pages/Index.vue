@@ -19,6 +19,8 @@
           :zoom-level="2.0"
           :layers="layers"
           :event-handlers="eventHandlers"
+          :chain="chain.label"
+          :endpoints="endpoints"
         />
         <parachain-dialog
           v-model="dialog"
@@ -32,6 +34,7 @@
     <left-drawer
       v-model="leftDrawerOpen"
       :items="items"
+      :chain="chain.label"
       @getCurrencies="getCurrencies"
     />
 
@@ -40,17 +43,11 @@
 </template>
 
 <script>
-import { defineComponent, reactive, ref } from "vue";
+import { defineComponent, reactive, ref, computed, watch } from "vue";
 import { useQuasar } from "quasar";
 import { Loading, QSpinnerGears } from "quasar";
-import { ForceLayout } from "v-network-graph/lib/force-layout";
-import * as vNG from "v-network-graph";
 import { version } from "../../package.json";
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { Buffer } from "buffer";
-import { BN } from "bn.js";
-import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
-import { equilibrium, equilibriumNext, genshiro } from "@equilab/definitions";
 
 import AppHeader from "components/AppHeader.vue";
 import NetworkGraph from "components/NetworkGraph.vue";
@@ -112,7 +109,14 @@ export default defineComponent({
       assets: [{ chain: "Polkadot", paraId: 2000, asset: [] }],
       endpoints: [],
       rocEndpoints: [],
+      nodeOver: null,
     };
+  },
+
+  computed: {
+    itemsArray() {
+      return Object.values(this.items);
+    },
   },
 
   watch: {
@@ -121,6 +125,9 @@ export default defineComponent({
     },
     mode() {
       this.updateDarkMode();
+    },
+    nodeOver() {
+      this.updateConfigs();
     },
   },
 
@@ -137,22 +144,21 @@ export default defineComponent({
   },
 
   methods: {
-    toggleLeftDrawer() {
-      this.leftDrawerOpen = !this.leftDrawerOpen;
-    },
-    toggleRightDrawer() {
-      this.rightDrawerOpen = !this.rightDrawerOpen;
-    },
-    updateChain(newChain) {
-      this.chain = newChain;
-    },
-    updateMode(newMode) {
-      this.mode = newMode;
-    },
+    // ... (other methods remain the same) ...
+
     updateDarkMode() {
       this.$q.dark.set(this.mode);
-      this.configs.node.label.color = this.mode ? "#ffffff" : "#000000";
+      this.updateConfigs();
     },
+
+    updateConfigs() {
+      this.configs = setupConfigs(
+        this.mode,
+        this.$q.dark.isActive,
+        this.nodeOver
+      );
+    },
+
     async loadData() {
       Loading.show({
         spinner: QSpinnerGears,
@@ -164,8 +170,12 @@ export default defineComponent({
       await this.fetchParachainData();
 
       this.setupGraphData();
-      this.configs = setupConfigs(this.mode, this.$q.dark.isActive);
-      this.eventHandlers = setupEventHandlers(this.nodes);
+      this.updateConfigs();
+      this.eventHandlers = setupEventHandlers(this.nodes, (nodeId) => {
+        this.nodeOver = nodeId
+          ? parseInt(nodeId.replace("node", ""), 10)
+          : null;
+      });
 
       Loading.hide();
     },
@@ -183,13 +193,72 @@ export default defineComponent({
       await api.disconnect();
     },
     processHrmpChannels(hrmpChannels) {
-      // Implementation for processing HRMP channels
+      hrmpChannels.forEach((e) => {
+        const h = e[0].toHuman();
+        let sender = parseInt(h[0].sender.replace(",", ""), 10);
+        let recipient = parseInt(h[0].recipient.replace(",", ""), 10);
+
+        this.addNode(sender);
+        this.addNode(recipient);
+        this.addEdge(sender, recipient);
+      });
     },
     processRequestsList(requestsList) {
-      // Implementation for processing requests list
+      requestsList.forEach((e) => {
+        const h = e.toHuman();
+        const sender = parseInt(h.sender.replace(",", ""), 10);
+        const recipient = parseInt(h.recipient.replace(",", ""), 10);
+
+        this.addNode(sender, "request");
+        this.addNode(recipient, "request");
+        this.addEdge(sender, recipient, "request");
+      });
+    },
+    addNode(paraId, type = "normal") {
+      const info = this.endpoints.find((c) => c.paraId === paraId);
+      const name = info
+        ? info.info[0].toUpperCase() + info.info.substring(1)
+        : paraId;
+
+      this.nodes["node" + paraId] = {
+        id: "node" + paraId,
+        number: paraId,
+        name: name,
+        type: type,
+      };
+
+      if (
+        !this.assets.find(
+          (c) => c.paraId === paraId && c.chain === this.chain.label
+        )
+      ) {
+        this.assets.push({
+          chain: this.chain.label,
+          paraId: paraId,
+          asset: [],
+        });
+      }
+    },
+    addEdge(sender, recipient, type = "normal") {
+      const nameSender = this.nodes["node" + sender].name;
+      const nameRecipient = this.nodes["node" + recipient].name;
+
+      this.edges["edge" + sender + "-" + recipient] = {
+        source: "node" + sender,
+        target: "node" + recipient,
+        sender,
+        recipient,
+        nameSender: nameSender,
+        nameRecipient: nameRecipient,
+        label: nameSender + " ➔ " + nameRecipient,
+        type: type,
+      };
     },
     setupGraphData() {
-      // Setup nodes, edges, and other graph-related data
+      this.layers = { badge: "nodes" };
+      this.items = Object.values(this.edges).sort((a, b) =>
+        a.label.localeCompare(b.label)
+      );
     },
     async getCurrencies(chain, paraId) {
       const result = await getCurrencies(

@@ -26,7 +26,7 @@
         :y="-config.radius * scale * 2"
         :width="config.radius * scale * 4"
         :height="config.radius * scale * 4"
-        :xlink:href="image(nodes[nodeId].number)"
+        :xlink:href="getNodeImage(nodes[nodeId].number)"
         clip-path="url(#faceCircle)"
       />
       <circle
@@ -45,17 +45,46 @@
 export default {
   name: "NetworkGraph",
   props: {
-    nodes: Object,
-    edges: Object,
-    configs: Object,
-    zoomLevel: Number,
-    layers: Object,
-    eventHandlers: Object,
+    nodes: {
+      type: Object,
+      required: true,
+    },
+    edges: {
+      type: Object,
+      required: true,
+    },
+    configs: {
+      type: Object,
+      required: true,
+    },
+    zoomLevel: {
+      type: Number,
+      default: 1,
+    },
+    layers: {
+      type: Object,
+      default: () => ({}),
+    },
+    eventHandlers: {
+      type: Object,
+      default: () => ({}),
+    },
+    chain: {
+      type: String,
+      required: true,
+    },
+    endpoints: {
+      type: Array,
+      required: true,
+    },
   },
   methods: {
-    image(number) {
-      // Implement the image logic here
-      return `https://example.com/image/${number}.png`;
+    getNodeImage(paraId) {
+      const endpoint = this.endpoints.find((e) => e.paraId === paraId);
+      if (endpoint && endpoint.ui && endpoint.ui.logo) {
+        return endpoint.ui.logo;
+      }
+      return `https://cdn.pixabay.com/photo/2015/08/27/10/14/icon-909830_1280.png`;
     },
   },
 };

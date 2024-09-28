@@ -1,7 +1,7 @@
 import { ForceLayout } from "v-network-graph/lib/force-layout";
 import * as vNG from "v-network-graph";
 
-export function setupConfigs(mode, isDarkActive) {
+export function setupConfigs(mode, isDarkActive, nodeOver) {
   return vNG.defineConfigs({
     view: {
       layoutHandler: new ForceLayout({
@@ -23,7 +23,7 @@ export function setupConfigs(mode, isDarkActive) {
       selectable: false,
       normal: {
         width: (n) =>
-          n.sender !== this.nodeOver && n.recipient !== this.nodeOver ? 1 : 3,
+          n.sender !== nodeOver && n.recipient !== nodeOver ? 1 : 3,
         color: (n) =>
           n.type === "request"
             ? "#e6007a"
@@ -32,15 +32,15 @@ export function setupConfigs(mode, isDarkActive) {
             : "#0000ff",
         dasharray: (n) =>
           (n.type === "request" &&
-            n.sender !== this.nodeOver &&
-            n.recipient !== this.nodeOver) ||
-          (n.type !== "request" && n.sender === this.nodeOver) ||
-          (n.type !== "request" && n.recipient === this.nodeOver)
+            n.sender !== nodeOver &&
+            n.recipient !== nodeOver) ||
+          (n.type !== "request" && n.sender === nodeOver) ||
+          (n.type !== "request" && n.recipient === nodeOver)
             ? "10"
-            : "#0",
+            : "0",
         linecap: "butt",
         animate: (n) =>
-          (n.sender === this.nodeOver || n.recipient === this.nodeOver) &&
+          (n.sender === nodeOver || n.recipient === nodeOver) &&
           n.type !== "request",
         animationSpeed: 50,
       },
