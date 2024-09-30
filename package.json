@@ -15,6 +15,8 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-typescript": "^7.24.7",
     "@equilab/definitions": "^1.4.11",
     "@moonbeam-network/xcm-config": "^0.0.25",
     "@moonbeam-network/xcm-sdk": "^0.0.25",
