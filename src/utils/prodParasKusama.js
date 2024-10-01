@@ -1003,39 +1003,3 @@ export const prodParasKusamaCommon = [
     logo: chainsPeopleKusamaSVG
   }
 }];
-
-
-export const prodRelayKusama = {
-  dnslink: 'kusama',
-  genesisHash: KUSAMA_GENESIS,
-  info: 'kusama',
-  isPeopleForIdentity: true,
-  isRelay: true,
-  linked: [
-  ...prodParasKusamaCommon,
-  ...prodParasKusama],
-
-  providers: {
-    // 'Geometry Labs': 'wss://kusama.geometry.io/websockets', // https://github.com/polkadot-js/apps/pull/6746
-    // 'Automata 1RPC': 'wss://1rpc.io/ksm',
-    Allnodes: 'wss://kusama-rpc.publicnode.com',
-    Dwellir: 'wss://kusama-rpc.dwellir.com',
-    'Dwellir Tunisia': 'wss://kusama-rpc-tn.dwellir.com',
-    IBP1: 'wss://rpc.ibp.network/kusama',
-    IBP2: 'wss://kusama.dotters.network',
-    LuckyFriday: 'wss://rpc-kusama.luckyfriday.io',
-    OnFinality: 'wss://kusama.api.onfinality.io/public-ws',
-    RadiumBlock: 'wss://kusama.public.curie.radiumblock.co/ws',
-    RockX: 'wss://rockx-ksm.w3node.com/polka-public-ksm/ws',
-    Stakeworld: 'wss://ksm-rpc.stakeworld.io',
-    SubQuery: 'wss://kusama.rpc.subquery.network/public/ws',
-    'light client': 'light://substrate-connect/kusama'
-  },
-  teleport: getTeleports(prodParasKusamaCommon),
-  text: 'Kusama',
-  ui: {
-    color: '#000000',
-    identityIcon: 'polkadot',
-    logo: chainsKusamaSVG
-  }
-};
