@@ -10,6 +10,7 @@
     "dev": "quasar dev",
     "build": "quasar build",
     "deploy": "vercel",
+    "fetch": "node src/scripts/fetchEndpoints.js",
     "lint": "eslint --ext .js,.vue ./",
     "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0"
