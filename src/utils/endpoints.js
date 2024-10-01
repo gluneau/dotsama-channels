@@ -7,12 +7,12 @@ export function getEndpoints(chain) {
   switch (chain) {
     case "Kusama":
     case "Rococo":
-      endpoints = prodParasKusama + prodParasKusamaCommon;
+      endpoints = [...prodParasKusama, ...prodParasKusamaCommon];
       break;
 
     case "Polkadot":
     case "Westend":
-      endpoints = prodParasPolkadot + prodParasPolkadotCommon;
+      endpoints = [...prodParasPolkadot, ...prodParasPolkadotCommon];
       break;
   }
 
