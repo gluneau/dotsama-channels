@@ -1,18 +1,23 @@
 {
   "name": "channels",
-  "version": "1.1.16",
+  "version": "1.1.17",
   "description": "Dotsama HRMP Channel and token App",
   "productName": "Dotsama HRMP Channel and token App",
   "author": "Gregory Luneau <gregory.luneau@gmail.com>",
   "private": true,
+  "license": "MIT",
   "scripts": {
+    "dev": "quasar dev",
     "build": "quasar build",
     "deploy": "vercel",
+    "fetch": "node src/scripts/fetchEndpoints.js",
     "lint": "eslint --ext .js,.vue ./",
     "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-typescript": "^7.24.7",
     "@equilab/definitions": "^1.4.11",
     "@moonbeam-network/xcm-config": "^0.0.25",
     "@moonbeam-network/xcm-sdk": "^0.0.25",
@@ -59,6 +64,5 @@
     "node": ">= 12.22.1",
     "npm": ">= 6.13.4",
     "yarn": ">= 1.21.1"
-  },
-  "license": "MIT"
+  }
 }
